@@ -45,7 +45,13 @@ with tempfile.TemporaryDirectory() as d:
     mx = json.load(open(os.path.join(d, "matrix.json")))
     ft = int(p["total"] * 15 + 0.999)
     assert mx[0]["a"] == 0 and mx[-1]["b"] == ft - 1 and all(x["b"] + 1 == y["a"] for x, y in zip(mx, mx[1:])) and len(mx) <= 20
-    p1 = p
+    # gaps: voice padding is trimmed, so silence between sentences is exactly pause / para (0.5 / 1.2 s)
+    sb = p["subs"]
+    gaps = {round(b["s"] - a["e"], 2) for a, b in zip(sb, sb[1:])}
+    assert gaps <= {0.0, 0.5, 1.2}, gaps
+    # no cut lands on the instant speech resumes after a pause
+    starts = [b["s"] for a, b in zip(sb, sb[1:]) if b["s"] - a["e"] >= 0.25]  # speech resuming after a real pause
+    assert not any(abs(c["s"] - x) < 0.05 for c in p["scenes"][1:] for x in starts), "cut on a speech start"
 
 # shards + join must give the same plan as one process
 with tempfile.TemporaryDirectory() as d:

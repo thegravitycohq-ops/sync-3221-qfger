@@ -9,7 +9,9 @@ _pipes = {}
 def synth(text, voice, speed):
     if os.environ.get("FAKE_TTS"):
         n = int(SR * 0.06 * len(text) / max(speed, 0.5))
-        return (np.sin(2 * np.pi * 180 * np.arange(n) / SR) * 600).astype("int16")
+        tone = (np.sin(2 * np.pi * 180 * np.arange(n) / SR) * 6000).astype("int16")
+        pad = np.zeros(int(SR * 0.3), "int16")  # real voices pad each sentence with silence; the stand-in does too
+        return np.concatenate([pad, tone, pad])
     from kokoro import KPipeline  # imported late: heavy, and not needed for tests
 
     lang = voice[0]  # 'a' = US voices, 'b' = UK voices
@@ -18,3 +20,15 @@ def synth(text, voice, speed):
     if not parts:
         raise RuntimeError("no audio for: " + text[:60])
     return (np.concatenate(parts) * 32767).clip(-32768, 32767).astype("int16")
+
+
+def trim(a, keep=0.05):
+    """Cut the silence a voice leaves before and after a sentence (keeps `keep` seconds), so pauses are exactly the ones we add."""
+    if not len(a):
+        return a
+    lvl = np.abs(a.astype("int32"))
+    idx = np.where(lvl > max(120, int(lvl.max() * 0.02)))[0]
+    if not len(idx):
+        return a
+    k = int(keep * SR)
+    return a[max(0, idx[0] - k): idx[-1] + k + 1]

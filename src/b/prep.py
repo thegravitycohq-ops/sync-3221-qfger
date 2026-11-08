@@ -8,7 +8,7 @@ import numpy as np, soundfile as sf
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "a"))
-from speak import synth, SR  # noqa: E402
+from speak import synth, trim, SR  # noqa: E402
 
 VOCAB = json.load(open(os.path.join(HERE, "..", "r", "vocab.json")))
 ABBR = ["Mr.", "Mrs.", "Ms.", "Dr.", "vs.", "etc.", "e.g.", "i.e.", "approx."]
@@ -126,14 +126,14 @@ def shard_count(script, us):
 
 
 def voice_of(m):
-    return m.get("voice", "af_heart"), float(m.get("speed", 0.88)), float(m.get("pause", 0.6)), float(m.get("para", 1.3))
+    return m.get("voice", "af_heart"), float(m.get("speed", 0.88)), float(m.get("pause", 0.5)), float(m.get("para", 1.2))
 
 
 def synth_range(us, m, synth_fn=synth):
     voice, speed, gap, para = voice_of(m)
     parts, counts = [], []
     for k, u in enumerate(us):
-        a = synth_fn(u["tts"], voice, speed)
+        a = trim(synth_fn(u["tts"], voice, speed))
         counts.append(len(a))
         parts += [a, np.zeros(int((para if u["pe"] else gap) * SR), "int16")]
         if (k + 1) % 50 == 0:
@@ -198,11 +198,15 @@ def make_shots(worlds, subs, max_shot, min_shot=2.0):
     shots, gi = [], 0
     for w in worlds:
         S, E = w["s"], w["e"]
-        inside = [u["s"] for u in subs if S <= u["s"] < E]
+        # candidate cut points: the middle of each silence between subtitles (the picture changes while nobody speaks,
+        # never on the instant the voice resumes), with the length of that silence
+        cands = [((a["e"] + b["s"]) / 2, b["s"] - a["e"]) for a, b in zip(subs, subs[1:]) if S < (a["e"] + b["s"]) / 2 < E]
         bounds, start = [S], S
         while E - start > max_shot + 1e-6:
-            cand = [x for x in inside if start + min_shot <= x <= start + max_shot]
-            start = max(cand) if cand else start + max_shot
+            win = [c for c in cands if start + min_shot <= c[0] <= start + max_shot]
+            good = [c for c in win if c[1] >= 0.25]
+            pick = max(good or win, key=lambda c: c[0]) if (good or win) else None
+            start = pick[0] if pick else start + max_shot
             bounds.append(start)
         bounds.append(E)
         if len(bounds) > 3 and bounds[-1] - bounds[-2] < 1.2:
@@ -262,17 +266,18 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     m = script["meta"]
     _, _, gap, para = voice_of(m)
     fps, res = int(m.get("fps", 15)), int(m.get("res", 720))
-    t, worlds, subs, chapters, warns, last_ci = T0, [], [], [], [], -1
+    t, worlds, subs, chapters, warns, last_ci, lastgap = T0, [], [], [], [], -1, 0.0
     for i, u in enumerate(us):
         if u["ci"] != last_ci:
             chapters.append((script["chapters"][u["ci"]]["title"], 0 if u["ci"] == 0 else t))
             last_ci = u["ci"]
         if u["art"] is not None:
+            cut = t - lastgap / 2 if worlds else 0  # change setting in the middle of the pause, not as the voice resumes
             if worlds:
-                worlds[-1]["e"] = t
+                worlds[-1]["e"] = cut
             art = dict(u["art"])
             art.setdefault("seed", f"{m.get('slug', 'v')}-{len(worlds)}")
-            worlds.append({"s": 0 if not worlds else t, "art": art})
+            worlds.append({"s": cut, "art": art})
         if len(u["text"].split()) > 45:
             warns.append(f"chapter {u['ci'] + 1} scene {u['si'] + 1}: a sentence has {len(u['text'].split())} words")
         d, chunks, x = counts[i] / SR, sub_chunks(u["text"]), t
@@ -280,7 +285,8 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
         for c in chunks:
             subs.append({"s": round(x, 3), "e": round(x + d * len(c) / tot, 3), "t": c})
             x += d * len(c) / tot
-        t += d + int((para if u["pe"] else gap) * SR) / SR
+        lastgap = int((para if u["pe"] else gap) * SR) / SR
+        t += d + lastgap
     total = round(t + TAIL, 3)
     worlds[-1]["e"] = total
     for i, w in enumerate(worlds):
