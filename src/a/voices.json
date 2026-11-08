@@ -1,0 +1,11 @@
+[
+  {"id": "af_heart", "label": "Heart: US female, warm"},
+  {"id": "af_nicole", "label": "Nicole: US female, soft and close"},
+  {"id": "af_sky", "label": "Sky: US female, light"},
+  {"id": "am_michael", "label": "Michael: US male, steady"},
+  {"id": "am_fenrir", "label": "Fenrir: US male, deep"},
+  {"id": "bf_emma", "label": "Emma: UK female, gentle"},
+  {"id": "bf_isabella", "label": "Isabella: UK female, calm"},
+  {"id": "bm_george", "label": "George: UK male, warm"},
+  {"id": "bm_lewis", "label": "Lewis: UK male, quiet"}
+]

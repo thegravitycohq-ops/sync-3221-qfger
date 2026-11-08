@@ -1,0 +1,25 @@
+name: check-a
+run-name: v ${{ github.run_number }}
+on:
+  workflow_dispatch:
+    inputs: {speed: {default: "0.88"}}
+permissions: {contents: read}
+
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - uses: actions/cache@v4
+        with: {path: ~/.cache/huggingface, key: m1}
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q -r requirements.txt
+          python src/a/samples.py "${{ inputs.speed }}"
+      - uses: actions/upload-artifact@v4
+        with: {name: v, path: samples, retention-days: 1}

@@ -1,0 +1,16 @@
+name: clean-runs
+run-name: c ${{ github.run_number }}
+on:
+  schedule: [{cron: "17 3 * * *"}]
+  workflow_dispatch:
+permissions: {actions: write}
+
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    steps:
+      - env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          old=$(date -u -d '2 days ago' +%FT%TZ)
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs?status=completed&per_page=100" --jq ".workflow_runs[] | select(.created_at < \"$old\") | .id" \
+            | xargs -r -I{} gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}"
