@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 1}
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone zip
       - env:
           SCRIPT_KEY: ${{ secrets.SCRIPT_KEY }}
           RCLONE_CONF: ${{ secrets.RCLONE_CONF }}

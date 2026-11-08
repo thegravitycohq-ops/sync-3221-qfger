@@ -1,7 +1,7 @@
 // Hand-drawn scene engine. Pure function of (spec, frame): no randomness, no clock.
 // Look: wobbling ink lines (SVG displacement, new seed 6x/second = "boil"), flat watercolour fills, grain.
 import React from 'react';
-export type Spec = {riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
+export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
 const INK = '#3a2e28';
 const ln = {stroke: INK, strokeWidth: 2.3, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const};
@@ -233,7 +233,9 @@ export const Scene: React.FC<{spec: Spec; frame: number; fps: number; p: number}
   const pal = SKY[s.sky] ?? SKY.day, land = LAND[s.land] ?? LAND.valley;
   const c: Ctx = {pal, f: frame, fps, r: rng(hash(String(s.seed))), land, night: !!pal.night};
   const boil = Math.floor((frame * 6) / fps) % 6;
-  const cam = s.cam ?? 'in', z = 1.05 + (cam === 'out' ? 0.05 * (1 - p) : cam === 'in' ? 0.05 * p : 0.03), px = cam === 'left' ? (0.5 - p) * 70 : cam === 'right' ? (p - 0.5) * 70 : 0, py = cam === 'up' ? (0.5 - p) * 40 : 0;
+  const cam = s.cam ?? 'in', v = s.view ?? {}, z = (v.z ?? 1.06) * (1 + 0.035 * (cam === 'out' ? 1 - p : cam === 'in' ? p : 0.5));
+  const fx = Math.min(Math.max(v.x ?? 0.5, 0.5 / z + 0.01), 1 - 0.5 / z - 0.01), fy = Math.min(Math.max(v.y ?? 0.5, 0.5 / z + 0.01), 1 - 0.5 / z - 0.01);
+  const px = cam === 'left' ? (0.5 - p) * 30 : cam === 'right' ? (p - 0.5) * 30 : 0, py = cam === 'up' ? (0.5 - p) * 20 : 0;
   const things = (s.things ?? []).map((t: any[], i: number) => ({k: t[0], x: t[1] * W, y: t[2] * H, s: t[3] ?? 1, n: t[4], i})).sort((a: any, b: any) => a.y - b.y);
   const draw = (a: any[]) => a.map((t) => { const Th = t.k === 'group' ? Group : THINGS[t.k]; return Th ? <Th key={t.i} x={t.x} y={t.y} s={t.s} n={t.n} c={c} i={t.i} /> : null; });
   return (
@@ -245,7 +247,7 @@ export const Scene: React.FC<{spec: Spec; frame: number; fps: number; p: number}
         <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="9" stroke={INK} strokeWidth="1.5" /></pattern>
         <filter id="rough" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.014 0.018" numOctaves="2" seed={boil + 1} result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" /></filter>
       </defs>
-      <g transform={`translate(${W / 2 + px} ${H / 2 + py}) scale(${z}) translate(${-W / 2} ${-H / 2})`}>
+      <g transform={`translate(${W / 2} ${H / 2}) scale(${z}) translate(${-(fx * W + px)} ${-(fy * H + py)})`}>
         <g filter="url(#rough)">
           <Sky c={c} spec={s} f={frame} />
           <Land c={c} spec={s} f={frame} />

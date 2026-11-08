@@ -1,14 +1,22 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile, Img} from 'remotion';
 import {Scene, Spec} from './art';
+import './fonts';
+
+// Watermark constants measured from the reference screenshots (1366x768): text about 26% of the frame width,
+// cap height 5.3% of frame height, 3.5% in from the right, 4.7% down from the top, white at about 0.24 opacity.
+export const WM = {font: 'Anton, Impact, sans-serif', size: 0.0616, top: 0.045, right: 0.035, opacity: 0.24, color: '255,255,255'};
+// Subtitles: italic, yellow, black outline, lower third.
+export const SUB = {font: 'Roboto, Arial, sans-serif', size: 0.045, bottom: 0.08, color: '#f6d84c', stroke: 0.006};
 
 export type Plan = {fps: number; width: number; height: number; total: number; brand: string; fade: number; scenes: {s: number; e: number; art: Spec}[]; subs: {s: number; e: number; t: string}[]};
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
 
 export const Video: React.FC<Plan> = (plan) => {
-  const frame = useCurrentFrame(), {fps, height} = useVideoConfig();
-  const t = frame / fps, X = plan.fade;
+  const frame = useCurrentFrame(), {fps, height, width} = useVideoConfig();
+  const t = frame / fps;
   const i = Math.max(0, plan.scenes.findIndex((sc) => t < sc.e)), cur = plan.scenes[i], nxt = plan.scenes[i + 1];
+  const X = Math.min(plan.fade, (cur.e - cur.s) * 0.3); // dissolve length: never more than 30% of a short shot
   const draw = (sc: typeof cur) => <Scene spec={sc.art} frame={Math.max(0, frame - Math.round(sc.s * fps))} fps={fps} p={clamp((t - sc.s) / (sc.e - sc.s))} />;
   const mixIn = nxt ? clamp((t - (cur.e - X)) / X) : 0;
   const sub = plan.subs.find((u) => t >= u.s && t < u.e);
@@ -20,8 +28,8 @@ export const Video: React.FC<Plan> = (plan) => {
       {mixIn > 0 && nxt && <AbsoluteFill style={{opacity: mixIn}}>{draw(nxt)}</AbsoluteFill>}
       <AbsoluteFill style={{mixBlendMode: 'multiply', opacity: 0.45}}><Img src={staticFile('paper.png')} style={{width: '100%', height: '100%', objectFit: 'cover'}} /></AbsoluteFill>
       <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(30,20,10,0.32) 100%)'}} />
-      <div style={{position: 'absolute', top: height * 0.03, right: height * 0.04, font: `800 ${height * 0.05}px Roboto, "Liberation Sans", sans-serif`, letterSpacing: height * 0.004, textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', textShadow: '0 1px 3px rgba(0,0,0,0.35)'}}>{plan.brand}</div>
-      {sub && <div style={{position: 'absolute', left: '8%', right: '8%', bottom: height * 0.08, textAlign: 'center', opacity: subA, font: `italic 500 ${height * 0.045}px Roboto, "Liberation Sans", sans-serif`, lineHeight: 1.2, color: '#f6d84c', WebkitTextStroke: `${height * 0.006}px #000`, paintOrder: 'stroke fill', textShadow: '0 2px 6px rgba(0,0,0,0.7)'}}>{sub.t}</div>}
+      {plan.brand && <div style={{position: 'absolute', top: height * WM.top, right: width * WM.right, font: `400 ${height * WM.size}px/1 ${WM.font}`, textTransform: 'uppercase', whiteSpace: 'nowrap', color: `rgba(${WM.color},${WM.opacity})`}}>{plan.brand}</div>}
+      {sub && <div style={{position: 'absolute', left: '8%', right: '8%', bottom: height * SUB.bottom, textAlign: 'center', opacity: subA, font: `italic 500 ${height * SUB.size}px/1.2 ${SUB.font}`, color: SUB.color, WebkitTextStroke: `${height * SUB.stroke}px #000`, paintOrder: 'stroke fill', textShadow: '0 2px 6px rgba(0,0,0,0.7)'}}>{sub.t}</div>}
       <AbsoluteFill style={{background: '#000', opacity: black}} />
     </AbsoluteFill>
   );

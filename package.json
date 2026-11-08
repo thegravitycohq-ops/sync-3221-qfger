@@ -3,6 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "dependencies": {
+    "@fontsource/anton": "5.3.0",
+    "@fontsource/roboto": "5.3.0",
     "@remotion/bundler": "4.0.538",
     "@remotion/cli": "4.0.538",
     "@remotion/renderer": "4.0.538",
