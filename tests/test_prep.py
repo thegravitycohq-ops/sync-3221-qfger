@@ -87,3 +87,9 @@ for bad, msg in [({"meta": {}, "chapters": []}, "meta.title"), ({**S, "chapters"
     except SystemExit as e:
         assert msg in str(e), (msg, str(e))
 print("prep tests ok")
+
+# regression: two chunks whose last one is short must merge, not crash (the `a` job failed on this)
+two = prep.sub_chunks("The sun is going down toward the old hills and it is quiet. Rest now.")
+assert len(two) >= 1 and all(c.strip() for c in two) and "Rest now." in two[-1], two
+assert prep.sub_chunks("Goodnight.") == ["Goodnight."]
+print("sub_chunks ok")

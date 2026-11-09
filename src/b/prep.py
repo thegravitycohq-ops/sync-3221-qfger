@@ -34,7 +34,8 @@ def sub_chunks(s, maxc=48):
     if cur:
         out.append(cur)
     if len(out) > 1 and len(out[-1]) < 10:
-        out[-2] += " " + out.pop()
+        last = out.pop()  # pop first: `out[-2] += out.pop()` re-indexes the shorter list and fails when there are exactly two chunks
+        out[-1] += " " + last
     return out
 
 
