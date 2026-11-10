@@ -34,8 +34,7 @@ def sub_chunks(s, maxc=48):
     if cur:
         out.append(cur)
     if len(out) > 1 and len(out[-1]) < 10:
-        last = out.pop()  # pop first: `out[-2] += out.pop()` re-indexes the shorter list and fails when there are exactly two chunks
-        out[-1] += " " + last
+        out[-2] += " " + out.pop()
     return out
 
 
@@ -65,7 +64,7 @@ def validate(script):
         errs.append("meta.fps must be 10..30")
     if int(m.get("res", 720)) not in (720, 1080):
         errs.append("meta.res must be 720 or 1080")
-    if m.get("publish", "off") not in ("off", "private", "unlisted", "public"):
+    if m.get("publish", "private") not in ("off", "private", "unlisted", "public"):
         errs.append("meta.publish must be off, private, unlisted or public")
     chs = script.get("chapters") or []
     if not chs:
@@ -245,7 +244,7 @@ def yt_meta(m, chapters, total):
     ch = "\n".join(f"{clock(a)} {title}" for title, a in chapters)
     parts = [clean(m.get("description", "")), ch, ("Topics: " + ", ".join(tags[:8])) if tags and m.get("topics_line", True) else "", clean(m.get("footer", "")), " ".join(hashtags)]
     desc = "\n\n".join(p for p in parts if p)[:4800]
-    return {"title": clean(m["title"])[:100], "description": desc, "tags": tags, "privacy": m.get("publish", "off"), "category": str(m.get("category", "27")), "lang": m.get("lang", "en-US"), "synthetic": bool(m.get("synthetic", False))}
+    return {"title": clean(m["title"])[:100], "description": desc, "tags": tags, "privacy": m.get("publish", "private"), "category": str(m.get("category", "27")), "lang": m.get("lang", "en-US"), "synthetic": bool(m.get("synthetic", False))}
 
 
 def thumb_spec(m, worlds, total):
