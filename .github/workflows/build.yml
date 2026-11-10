@@ -200,7 +200,7 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
         run: |
-          [ "$(jq -r .privacy o/meta.json)" = off ] && exit 0
+          P=$(jq -r .privacy o/meta.json); echo "meta.publish = $P"; [ "$P" = off ] && { echo "publish skipped: meta.publish is off"; exit 0; }
           if [ -z "$YT_REFRESH_TOKEN" ]; then echo "publish skipped: YouTube secrets not set"; echo '{"error":"YouTube secrets are not set in the repo"}' > o/youtube.json; exit 0; fi
           python3 src/b/yt.py o
           rclone --config rc.conf copyto o/youtube.txt "gdrive:Out/$(cat o/slug.txt)/youtube.txt"
