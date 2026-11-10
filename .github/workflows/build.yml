@@ -1,0 +1,220 @@
+name: build
+run-name: r ${{ github.run_number }}
+on:
+  workflow_dispatch:
+    inputs: {b: {description: "", default: ""}}
+concurrency: {group: b, cancel-in-progress: false}
+permissions: {contents: read}
+
+jobs:
+  s:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs: {v: "${{ steps.o.outputs.v }}", n: "${{ steps.o.outputs.n }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: split
+        id: o
+        env: {SCRIPT_KEY: "${{ secrets.SCRIPT_KEY }}"}
+        run: |
+          pip install -q numpy soundfile
+          mkdir w
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY -in src/r/in.bin -out w/script.json
+          python src/b/prep.py split w
+          openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -in w/script.json -out p0.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: p0, path: p0.bin, retention-days: 1}
+
+  v:
+    needs: s
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      max-parallel: 20
+      matrix: {v: "${{ fromJson(needs.s.outputs.v) }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip, cache-dependency-path: requirements.txt}
+      - uses: actions/cache@v4
+        with: {path: ~/.cache/huggingface, key: m1}
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: p0}
+      - name: voice
+        env: {SCRIPT_KEY: "${{ secrets.SCRIPT_KEY }}"}
+        run: |
+          mkdir w
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY -in p0.bin -out w/script.json
+          python src/b/prep.py shard w ${{ matrix.v.k }} ${{ needs.s.outputs.n }}
+          tar -C w -cf - a.flac d.json | openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -out a.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: "a-${{ matrix.v.k }}", path: a.bin, retention-days: 1}
+
+  a:
+    needs: [s, v]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs: {m: "${{ steps.o.outputs.m }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -q numpy soundfile
+      - uses: actions/download-artifact@v4
+        with: {name: p0}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "a-*", path: dl}
+      - name: join
+        id: o
+        env:
+          SCRIPT_KEY: ${{ secrets.SCRIPT_KEY }}
+          B: ${{ inputs.b }}
+        run: |
+          dec() { openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY "$@"; }
+          mkdir w
+          dec -in p0.bin -out w/script.json
+          for k in $(seq 1 ${{ needs.s.outputs.n }}); do mkdir w/s$k; dec -in dl/a-$k/a.bin | tar -x -C w/s$k; done
+          if [ -n "$B" ]; then printf '%s' "$B" | base64 -d | dec > w/brand.txt; echo "::add-mask::$(cat w/brand.txt)"; fi
+          python src/b/prep.py join w ${{ needs.s.outputs.n }}
+          python -c "import json; print(json.load(open('w/plan.json'))['slug'])" > w/slug.txt
+          enc() { openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -out "$1"; }
+          tar -C w -cf - plan.json thumb.json | enc p1.bin
+          tar -C w -cf - narration.m4a captions.srt desc.txt slug.txt meta.json | enc p2.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: p1, path: p1.bin, retention-days: 1}
+      - uses: actions/upload-artifact@v4
+        with: {name: p2, path: p2.bin, retention-days: 1}
+
+  d:
+    needs: a
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      max-parallel: 20
+      matrix: {c: "${{ fromJson(needs.a.outputs.m) }}"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnss3 libdbus-1-3 libatk1.0-0t64 libatk-bridge2.0-0t64 libgbm1 libasound2t64 libxrandr2 libxkbcommon0 libxfixes3 libxcomposite1 libxdamage1 libpango-1.0-0 libcairo2 libcups2t64
+          pip install -q numpy pillow
+          npm ci --no-audit --no-fund
+          python src/b/paper.py
+      - uses: actions/download-artifact@v4
+        with: {name: p1}
+      - name: draw
+        env: {SCRIPT_KEY: "${{ secrets.SCRIPT_KEY }}"}
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY -in p1.bin | tar -x
+          npx remotion render src/r/index.ts V c.mp4 --props=plan.json --frames=${{ matrix.c.a }}-${{ matrix.c.b }} --concurrency=4 --crf=26 --log=error
+          rm plan.json thumb.json
+          openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -in c.mp4 -out c.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: "c-${{ matrix.c.i }}", path: c.bin, retention-days: 1}
+
+  t:
+    needs: a
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnss3 libdbus-1-3 libatk1.0-0t64 libatk-bridge2.0-0t64 libgbm1 libasound2t64 libxrandr2 libxkbcommon0 libxfixes3 libxcomposite1 libxdamage1 libpango-1.0-0 libcairo2 libcups2t64
+          npm ci --no-audit --no-fund
+      - uses: actions/download-artifact@v4
+        with: {name: p1}
+      - name: still
+        env: {SCRIPT_KEY: "${{ secrets.SCRIPT_KEY }}"}
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY -in p1.bin | tar -x thumb.json
+          for q in 90 75 60; do
+            npx remotion still src/r/index.ts T t.jpg --props=thumb.json --image-format=jpeg --jpeg-quality=$q --log=error
+            [ $(stat -c %s t.jpg) -lt 1900000 ] && break
+          done
+          openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -in t.jpg -out t.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: t1, path: t.bin, retention-days: 1}
+
+  m:
+    needs: [d, t]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions: {contents: read, actions: write}
+    steps:
+      - uses: actions/checkout@v4
+      - name: tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg rclone jq
+          command -v gh >/dev/null || sudo apt-get install -y -qq gh
+          for t in ffmpeg rclone jq openssl python3 gh; do command -v $t >/dev/null || { echo "missing tool: $t"; exit 1; }; done
+      - uses: actions/download-artifact@v4
+        with: {pattern: "c-*", path: dl}
+      - uses: actions/download-artifact@v4
+        with: {name: p2, path: dl/p2}
+      - uses: actions/download-artifact@v4
+        with: {name: t1, path: dl/t1}
+      - name: merge and store
+        id: st
+        env:
+          SCRIPT_KEY: ${{ secrets.SCRIPT_KEY }}
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+        run: |
+          dec() { openssl enc -d -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -pass env:SCRIPT_KEY "$@"; }
+          mkdir o
+          dec -in dl/p2/p2.bin | tar -x -C o
+          dec -in dl/t1/t.bin -out o/thumb.jpg
+          : > list.txt
+          for d in $(ls -d dl/c-* | sort -V); do
+            n=$(basename $d); dec -in $d/c.bin -out $n.mp4; echo "file '$PWD/$n.mp4'" >> list.txt
+          done
+          ffmpeg -v error -f concat -safe 0 -i list.txt -i o/narration.m4a -c:v copy -c:a copy -movflags +faststart o/video.mp4
+          printf '%s' "$RCLONE_CONF" > rc.conf
+          S=$(cat o/slug.txt)
+          for f in video.mp4 captions.srt desc.txt thumb.jpg; do rclone --config rc.conf copyto o/$f "gdrive:Out/$S/$f"; done
+          F=$(rclone --config rc.conf lsjson --dirs-only gdrive:Out | jq -r --arg s "$S" '[.[] | select(.Name == $s)][0].ID')
+          V=$(rclone --config rc.conf lsjson "gdrive:Out/$S" | jq -r '[.[] | select(.Name == "video.mp4")][0].ID')
+          jq -n --arg f "$F" --arg v "$V" '{drive: ("https://drive.google.com/drive/folders/" + $f), video: ("https://drive.google.com/file/d/" + $v + "/view")}' > o/result.json
+      - name: publish
+        id: yt
+        continue-on-error: true
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          P=$(jq -r .privacy o/meta.json); echo "meta.publish = $P"; [ "$P" = off ] && { echo "publish skipped: meta.publish is off"; exit 0; }
+          if [ -z "$YT_REFRESH_TOKEN" ]; then echo "publish skipped: YouTube secrets not set"; echo '{"error":"YouTube secrets are not set in the repo"}' > o/youtube.json; exit 0; fi
+          python3 src/b/yt.py o
+          rclone --config rc.conf copyto o/youtube.txt "gdrive:Out/$(cat o/slug.txt)/youtube.txt"
+      - name: report
+        env:
+          SCRIPT_KEY: ${{ secrets.SCRIPT_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[].id' | xargs -r -I{} gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/{}"
+          if [ "${{ steps.yt.outcome }}" = failure ]; then echo '{"error":"upload failed, see the run log"}' > o/youtube.json; fi
+          [ -f o/youtube.json ] || echo '{}' > o/youtube.json
+          jq -s '.[0] + {youtube: .[1]}' o/result.json o/youtube.json > o/r.json
+          openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -md sha256 -salt -pass env:SCRIPT_KEY -in o/r.json -out r.bin
+      - uses: actions/upload-artifact@v4
+        with: {name: r1, path: r.bin, retention-days: 2}
+      - if: steps.yt.outcome == 'failure'
+        run: exit 1
