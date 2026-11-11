@@ -1,0 +1,6 @@
+{
+  "land": ["canal", "lake"],
+  "frame": ["lattice"],
+  "fx": ["steam", "petals", "lights"],
+  "things": ["stall", "archbridge", "tiertower", "lanternstring", "willow", "gate", "shopfront", "punt", "bamboo", "pavilion", "lookout"]
+}
