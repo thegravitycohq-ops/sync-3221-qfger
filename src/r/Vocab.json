@@ -1,0 +1,66 @@
+{
+  "sky": [
+    "dawn",
+    "day",
+    "dusk",
+    "night",
+    "overcast"
+  ],
+  "land": [
+    "valley",
+    "plain",
+    "coast",
+    "forest",
+    "desert",
+    "mountains",
+    "snow",
+    "village"
+  ],
+  "frame": [
+    "cave",
+    "window"
+  ],
+  "fx": [
+    "mist",
+    "smoke",
+    "rain",
+    "snow",
+    "fireflies",
+    "birds"
+  ],
+  "things": [
+    "campfire",
+    "hut",
+    "cabin",
+    "tent",
+    "tree",
+    "pine",
+    "palm",
+    "rocks",
+    "cairn",
+    "pyramid",
+    "lighthouse",
+    "castle",
+    "boat",
+    "lantern",
+    "herd",
+    "person",
+    "lying",
+    "group",
+    "CanalBoat",
+    "LockGate",
+    "StoneLock",
+    "StoneAqueduct",
+    "TowpathHorse",
+    "Towpath",
+    "SaltWorks",
+    "PacketCabin"
+  ],
+  "cam": [
+    "in",
+    "out",
+    "left",
+    "right",
+    "up"
+  ]
+}
