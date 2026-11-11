@@ -14,11 +14,14 @@
     "desert",
     "mountains",
     "snow",
-    "village"
+    "village",
+    "canal",
+    "lake"
   ],
   "frame": [
     "cave",
-    "window"
+    "window",
+    "lattice"
   ],
   "fx": [
     "mist",
@@ -26,7 +29,10 @@
     "rain",
     "snow",
     "fireflies",
-    "birds"
+    "birds",
+    "steam",
+    "petals",
+    "lights"
   ],
   "things": [
     "campfire",
@@ -54,7 +60,18 @@
     "TowpathHorse",
     "Towpath",
     "SaltWorks",
-    "PacketCabin"
+    "PacketCabin",
+    "stall",
+    "archbridge",
+    "tiertower",
+    "lanternstring",
+    "willow",
+    "gate",
+    "shopfront",
+    "punt",
+    "bamboo",
+    "pavilion",
+    "lookout"
   ],
   "cam": [
     "in",

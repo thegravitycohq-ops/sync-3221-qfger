@@ -260,6 +260,14 @@ const SaltWorks = ({x, y, s = 1, c}: any) => (
   </g>
 );
 
+const PaperLantern = ({ x, y, r = 5, c, k = 0 }: { x: number; y: number; r?: number; c: any; k?: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <circle r={r * 2.4} fill={GLOW} opacity={0.16 * flick(c, k)} />
+    <ellipse rx={r} ry={r * 1.15} fill={tint(GLOW, c)} {...stroke(1)} />
+    <line x1={0} y1={-r * 1.15} x2={0} y2={-r * 1.15 - 4} {...stroke(1)} />
+  </g>
+);
+
 const THINGS: Record<string, any> = {campfire: Campfire, hut: Hut, cabin: Cabin, tent: Tent, tree: Tree, pine: (p: any) => <Tree {...p} k="pine" />, palm: (p: any) => <Tree {...p} k="palm" />, rocks: Rocks, cairn: Cairn, pyramid: Pyramid, lighthouse: Lighthouse, castle: Castle, boat: Boat, lantern: Lantern, herd: Herd, person: Person, lying: Lying, CanalBoat, LockGate, StoneLock, StoneAqueduct, TowpathHorse, Towpath, SaltWorks, PacketCabin};
 // group = n seated people in an arc around (x,y), e.g. ["group",0.5,0.8,1,5]
 const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, i) => { const a = Math.PI * (0.15 + (0.7 * i) / Math.max(1, n - 1)); return <Person key={i} x={x + Math.cos(a) * 130 * s * 1.5} y={y + Math.sin(a) * 36 * s + 20 * s} s={s * 0.9} c={c} seated flip={Math.cos(a) > 0} />; })}</g>;
