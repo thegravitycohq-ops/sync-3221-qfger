@@ -62,5 +62,6 @@
     "left",
     "right",
     "up"
-  ]
+  ],
+  "note": "Merge into src/r/vocab.json. Names are generic canal words, not brand/topic words."
 }
