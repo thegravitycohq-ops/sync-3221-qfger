@@ -162,11 +162,23 @@ DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.6
 BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine"}
 WIDE = [(1.08, 0.5, 0.5), (1.3, 0.3, 0.62), (1.45, 0.7, 0.6), (1.2, 0.5, 0.7), (1.55, 0.4, 0.7), (1.25, 0.65, 0.55)]
 
+RIVER_LANDS = {"valley"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
+RIVER_SAFE = 0.24         # ground things stay at least this far (in x) from the river centre
+
+
+def bank_x(x, y, rx):
+    """Push a ground thing out of the river band to the nearest bank (the river winds and widens
+    towards the viewer, so the safe margin is generous). Boats and far/horizon things are exempt."""
+    if rx is None or y < 0.6 or abs(x - rx) >= RIVER_SAFE:
+        return x
+    return round(min(0.92, rx + RIVER_SAFE), 3) if x >= rx else round(max(0.08, rx - RIVER_SAFE), 3)
+
 
 def shot_art(base, text, idx, gi):
     """One <=5 s view of a world: same landscape (same seed), different framing, plus whatever the narration mentions."""
     a = json.loads(json.dumps(base))
     things, fx = a.setdefault("things", []), list(a.get("fx", []))
+    river_x = a.get("riverX") if a.get("land") in RIVER_LANDS else None
     jit = (zlib.crc32(f"{base.get('seed')}{gi}".encode()) % 100) / 100 - 0.5
     focus, added = None, False
     for rx, kind, val in KW:
@@ -183,9 +195,15 @@ def shot_art(base, text, idx, gi):
                 d = DEF[val]
                 have = [val, min(0.9, max(0.1, d[0] + jit * 0.12)), d[1], d[2]] + d[3:]
                 things.append(have)
+            if val != "boat":
+                have[1] = bank_x(have[1], have[2], river_x)
             focus = (1.35 if val in BIG else 1.7, have[1], have[2] - 0.12)
+    if river_x is not None:
+        for t in things:
+            if t[0] != "boat":
+                t[1] = bank_x(t[1], t[2], river_x)
     if focus is None:
-        base_things = [t for t in base.get("things", [])]
+        base_things = [t for t in things]
         if base_things and idx % 2 == 1:
             t = base_things[(idx // 2) % len(base_things)]
             focus = (1.6, t[1], t[2] - 0.12)
@@ -278,6 +296,8 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
                 worlds[-1]["e"] = cut
             art = dict(u["art"])
             art.setdefault("seed", f"{m.get('slug', 'v')}-{len(worlds)}")
+            if art.get("land") in RIVER_LANDS and "riverX" not in art:
+                art["riverX"] = 0.16 if zlib.crc32(str(art["seed"]).encode()) % 2 == 0 else 0.84
             worlds.append({"s": cut, "art": art})
         if len(u["text"].split()) > 45:
             warns.append(f"chapter {u['ci'] + 1} scene {u['si'] + 1}: a sentence has {len(u['text'].split())} words")
