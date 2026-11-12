@@ -152,17 +152,25 @@ KW = [
     (r"children|child|family|families|elders?|people|group|together|gather|gathered|friends|villagers|community|everyone", "thing", "group"),
     (r"sleep|sleeping|asleep|rest|resting|lie|lying|blanket|blankets|bed|beds|dream|dreams", "thing", "lying"),
     (r"walk|walks|walking|path|paths|journey|travel|travelled|traveller|wander", "thing", "person"),
+    (r"temple|shrine|sanctuary", "thing", "temple"), (r"pillar|pillars|ruin|ruins", "thing", "pillar"),
+    (r"throne", "thing", "throne"), (r"thunderbolt|lightning|thunder", "thing", "bolt"), (r"trident", "thing", "trident"),
+    (r"serpent|hydra|snake|gorgon", "thing", "serpent"), (r"wave|waves", "thing", "wave"), (r"chariot", "thing", "chariot"),
+    (r"spear|shield|duel|sword", "thing", "warrior"), (r"wings|winged|flew|flies", "thing", "winged"),
+    (r"giant|giants|titan|titans", "thing", "giant"),
     (r"rain|raining|rainfall|drizzle|storm", "fx", "rain"), (r"snow|snowfall|frost|winter|ice", "fx", "snow"), (r"mist|fog|haze", "fx", "mist"),
     (r"bird|birds|geese|swallows|crows|flock|wings", "fx", "birds"), (r"smoke|smoulder|chimney", "fx", "smoke"), (r"firefl(?:y|ies)|glow", "fx", "fireflies"),
 ]
 KW = [(re.compile(r"\b(?:" + p + r")\b", re.I), k, v) for p, k, v in KW]
 DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.66, 1.0], "cabin": [0.75, 0.64, 0.9], "tree": [0.3, 0.7, 1.2], "pine": [0.25, 0.72, 1.2], "palm": [0.2, 0.8, 1.4],
        "rocks": [0.7, 0.82, 1.3], "cairn": [0.15, 0.8, 1.2], "pyramid": [0.7, 0.6, 1.3], "lighthouse": [0.8, 0.72, 1.4], "castle": [0.7, 0.6, 1.2], "boat": [0.35, 0.56, 1.1],
-       "lantern": [0.7, 0.7, 1.0], "herd": [0.4, 0.52, 0.8], "group": [0.5, 0.8, 1.2, 5], "lying": [0.35, 0.8, 1.2], "person": [0.55, 0.8, 1.3]}
-BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine"}
+       "lantern": [0.7, 0.7, 1.0], "herd": [0.4, 0.52, 0.8], "group": [0.5, 0.8, 1.2, 5], "lying": [0.35, 0.8, 1.2], "person": [0.55, 0.8, 1.3],
+       "temple": [0.65, 0.62, 1.2], "pillar": [0.75, 0.8, 1.1], "throne": [0.5, 0.66, 1.1], "bolt": [0.6, 0.45, 1.0], "trident": [0.7, 0.8, 1.2],
+       "serpent": [0.5, 0.6, 1.2], "wave": [0.3, 0.58, 1.3], "chariot": [0.6, 0.8, 1.1], "warrior": [0.55, 0.8, 1.2], "winged": [0.5, 0.45, 1.0],
+       "giant": [0.7, 0.62, 1.6]}
+BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant"}
 WIDE = [(1.08, 0.5, 0.5), (1.3, 0.3, 0.62), (1.45, 0.7, 0.6), (1.2, 0.5, 0.7), (1.55, 0.4, 0.7), (1.25, 0.65, 0.55)]
 
-RIVER_LANDS = {"valley"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
+RIVER_LANDS = {"valley", "ashfield"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
 RIVER_SAFE = 0.24         # ground things stay at least this far (in x) from the river centre
 
 

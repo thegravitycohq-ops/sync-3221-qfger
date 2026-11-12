@@ -4,7 +4,9 @@
     "day",
     "dusk",
     "night",
-    "overcast"
+    "overcast",
+    "storm",
+    "radiant"
   ],
   "land": [
     "valley",
@@ -16,12 +18,17 @@
     "snow",
     "village",
     "canal",
-    "lake"
+    "lake",
+    "cloudsea",
+    "ashfield",
+    "grove",
+    "isle"
   ],
   "frame": [
     "cave",
     "window",
-    "lattice"
+    "lattice",
+    "portico"
   ],
   "fx": [
     "mist",
@@ -32,7 +39,10 @@
     "birds",
     "steam",
     "petals",
-    "lights"
+    "lights",
+    "rays",
+    "bolts",
+    "sparks"
   ],
   "things": [
     "campfire",
@@ -71,7 +81,19 @@
     "punt",
     "bamboo",
     "pavilion",
-    "lookout"
+    "lookout",
+    "temple",
+    "pillar",
+    "throne",
+    "bolt",
+    "trident",
+    "serpent",
+    "wave",
+    "chariot",
+    "aurafigure",
+    "winged",
+    "warrior",
+    "giant"
   ],
   "cam": [
     "in",
