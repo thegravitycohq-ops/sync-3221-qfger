@@ -267,7 +267,7 @@ def yt_meta(m, chapters, total):
             tags.append(t)
             size += len(t) + 3
     tag_h = ["#" + re.sub(r"\W", "", t.title()) for t in tags]
-    hashtags = [("#" + h.lstrip("#")) for h in (m.get("hashtags") or tag_h[:3])][:5]
+    hashtags = [("#" + h.lstrip("#")) for h in (m.get("hashtags") or tag_h[:3])][:10]
     ch = "\n".join(f"{clock(a)} {title}" for title, a in chapters)
     parts = [clean(m.get("description", "")), ch, ("Topics: " + ", ".join(tags[:8])) if tags and m.get("topics_line", True) else "", clean(m.get("footer", "")), " ".join(hashtags)]
     desc = "\n\n".join(p for p in parts if p)[:4800]
