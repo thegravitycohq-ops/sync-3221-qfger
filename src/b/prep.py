@@ -143,6 +143,8 @@ def synth_range(us, m, synth_fn=synth):
 
 # ---------- pictures that follow the narration ----------
 KW = [
+    (r"longship|longships|long ship|dragon ship", "thing", "longship"), (r"longhouse|longhouses|long house|long hall", "thing", "longhouse"),
+    (r"runestone|runestones|rune stone|rune stones", "thing", "runestone"), (r"jetty|jetties|landing stage|pier", "thing", "jetty"),
     (r"fire|fires|flame|flames|hearth|embers|coals|campfire", "thing", "campfire"), (r"hut|huts|shelter|shelters|house|houses|home|homes|dwelling", "thing", "hut"),
     (r"tent|tents", "thing", "tent"), (r"cabin|cottage", "thing", "cabin"), (r"tree|trees|oak|branches|orchard", "thing", "tree"), (r"pine|pines|conifer", "thing", "pine"),
     (r"palm|palms", "thing", "palm"), (r"stone|stones|rock|rocks|boulder|boulders|flint|pebbles", "thing", "rocks"), (r"cairn|cairns", "thing", "cairn"),
@@ -158,7 +160,7 @@ KW = [
     (r"spear|shield|duel|sword", "thing", "warrior"), (r"wings|winged|flew|flies", "thing", "winged"),
     (r"giant|giants|titan|titans", "thing", "giant"),
     (r"rain|raining|rainfall|drizzle|storm", "fx", "rain"), (r"snow|snowfall|frost|winter|ice", "fx", "snow"), (r"mist|fog|haze", "fx", "mist"),
-    (r"bird|birds|geese|swallows|crows|flock|wings", "fx", "birds"), (r"smoke|smoulder|chimney", "fx", "smoke"), (r"firefl(?:y|ies)|glow", "fx", "fireflies"),
+    (r"bird|birds|geese|swallows|crows|flock|wings", "fx", "birds"), (r"smoke|smoulder|chimney", "fx", "smoke"), (r"firefl(?:y|ies)|glow", "fx", "fireflies"), (r"northern lights|aurora", "fx", "aurora"),
 ]
 KW = [(re.compile(r"\b(?:" + p + r")\b", re.I), k, v) for p, k, v in KW]
 DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.66, 1.0], "cabin": [0.75, 0.64, 0.9], "tree": [0.3, 0.7, 1.2], "pine": [0.25, 0.72, 1.2], "palm": [0.2, 0.8, 1.4],
@@ -166,8 +168,8 @@ DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.6
        "lantern": [0.7, 0.7, 1.0], "herd": [0.4, 0.52, 0.8], "group": [0.5, 0.8, 1.2, 5], "lying": [0.35, 0.8, 1.2], "person": [0.55, 0.8, 1.3],
        "temple": [0.65, 0.62, 1.2], "pillar": [0.75, 0.8, 1.1], "throne": [0.5, 0.66, 1.1], "bolt": [0.6, 0.45, 1.0], "trident": [0.7, 0.8, 1.2],
        "serpent": [0.5, 0.6, 1.2], "wave": [0.3, 0.58, 1.3], "chariot": [0.6, 0.8, 1.1], "warrior": [0.55, 0.8, 1.2], "winged": [0.5, 0.45, 1.0],
-       "giant": [0.7, 0.62, 1.6]}
-BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant"}
+       "giant": [0.7, 0.62, 1.6], "longhouse": [0.3, 0.64, 1.1], "longship": [0.5, 0.56, 1.3], "runestone": [0.72, 0.8, 1.1], "jetty": [0.5, 0.6, 0.9]}
+BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant", "longship", "longhouse"}
 WIDE = [(1.08, 0.5, 0.5), (1.3, 0.3, 0.62), (1.45, 0.7, 0.6), (1.2, 0.5, 0.7), (1.55, 0.4, 0.7), (1.25, 0.65, 0.55)]
 
 RIVER_LANDS = {"valley", "ashfield"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')

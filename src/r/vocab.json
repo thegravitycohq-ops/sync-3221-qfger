@@ -22,7 +22,8 @@
     "cloudsea",
     "ashfield",
     "grove",
-    "isle"
+    "isle",
+    "fjord"
   ],
   "frame": [
     "cave",
@@ -42,7 +43,8 @@
     "lights",
     "rays",
     "bolts",
-    "sparks"
+    "sparks",
+    "aurora"
   ],
   "things": [
     "campfire",
@@ -93,7 +95,11 @@
     "aurafigure",
     "winged",
     "warrior",
-    "giant"
+    "giant",
+    "longhouse",
+    "longship",
+    "runestone",
+    "jetty"
   ],
   "cam": [
     "in",
