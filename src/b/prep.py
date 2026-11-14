@@ -14,6 +14,12 @@ VOCAB = json.load(open(os.path.join(HERE, "..", "r", "vocab.json")))
 ABBR = ["Mr.", "Mrs.", "Ms.", "Dr.", "vs.", "etc.", "e.g.", "i.e.", "approx."]
 CAMS = ["in", "out", "left", "right", "in", "up"]
 T0, TAIL, MAX_JOBS = 2.0, 5.0, 20
+# Silent chapter cards (2026-11-14): the last sentence of every chapter except the final one is
+# followed by CARD_SECS of extra silence; plan.json gains a "cards" list [{s, e, title}] covering
+# exactly that silence, and the renderer draws the NEXT chapter's title on screen during it.
+# The title never enters TTS. Both the shard audio (synth_range) and the plan timeline
+# (assemble) add the same CARD_SECS, so audio and plan stay in sync in sharded and single runs.
+CARD_SECS = 6.0
 
 # ---------- text ----------
 def sentences(p):
@@ -105,6 +111,14 @@ def units(script, lexicon=None):
                 for k, sent in enumerate(ss):
                     out.append({"ci": ci, "si": si, "art": art, "text": sent, "tts": tts(sent), "pe": k == len(ss) - 1})
                     art = None
+    # chapter cards: the last sentence of every chapter but the final one carries "card",
+    # which lengthens the silence after it by CARD_SECS in both synth and plan (see CARD_SECS).
+    last_of = {}
+    for i, u in enumerate(out):
+        last_of[u["ci"]] = i
+    for ci in range(len(script["chapters"]) - 1):
+        if ci in last_of:
+            out[last_of[ci]]["card"] = True
     return out
 
 
@@ -136,7 +150,8 @@ def synth_range(us, m, synth_fn=synth):
     for k, u in enumerate(us):
         a = trim(synth_fn(u["tts"], voice, speed))
         counts.append(len(a))
-        parts += [a, np.zeros(int((para if u["pe"] else gap) * SR), "int16")]
+        sil = (para if u["pe"] else gap) + (CARD_SECS if u.get("card") else 0.0)
+        parts += [a, np.zeros(int(sil * SR), "int16")]
         if (k + 1) % 50 == 0:
             print(f"sentences {k + 1}/{len(us)}", flush=True)
     return np.concatenate(parts), counts
@@ -145,6 +160,11 @@ def synth_range(us, m, synth_fn=synth):
 KW = [
     (r"longship|longships|long ship|dragon ship", "thing", "longship"), (r"longhouse|longhouses|long house|long hall", "thing", "longhouse"),
     (r"runestone|runestones|rune stone|rune stones", "thing", "runestone"), (r"jetty|jetties|landing stage|pier", "thing", "jetty"),
+    (r"world tree|yggdrasil|great ash|ash tree", "thing", "worldtree"), (r"rainbow bridge|bifrost", "thing", "rainbowbridge"),
+    (r"great hall|hall of the slain|hall of the gods|valhalla", "thing", "greathall"), (r"world serpent|midgard serpent|jormungandr", "thing", "worldserpent"),
+    (r"great wolf|fenrir|the wolf", "thing", "greatwolf"), (r"ravens?|huginn|muninn", "thing", "ravens"),
+    (r"well of|the well|sacred well|three wells|the wells", "thing", "well"), (r"stag|hart", "thing", "stag"),
+    (r"ash drifts|ash drifted|ash falling|falling ash|ash settles|ash settled|drifting ash", "fx", "ashfall"),
     (r"fire|fires|flame|flames|hearth|embers|coals|campfire", "thing", "campfire"), (r"hut|huts|shelter|shelters|house|houses|home|homes|dwelling", "thing", "hut"),
     (r"tent|tents", "thing", "tent"), (r"cabin|cottage", "thing", "cabin"), (r"tree|trees|oak|branches|orchard", "thing", "tree"), (r"pine|pines|conifer", "thing", "pine"),
     (r"palm|palms", "thing", "palm"), (r"stone|stones|rock|rocks|boulder|boulders|flint|pebbles", "thing", "rocks"), (r"cairn|cairns", "thing", "cairn"),
@@ -168,8 +188,11 @@ DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.6
        "lantern": [0.7, 0.7, 1.0], "herd": [0.4, 0.52, 0.8], "group": [0.5, 0.8, 1.2, 5], "lying": [0.35, 0.8, 1.2], "person": [0.55, 0.8, 1.3],
        "temple": [0.65, 0.62, 1.2], "pillar": [0.75, 0.8, 1.1], "throne": [0.5, 0.66, 1.1], "bolt": [0.6, 0.45, 1.0], "trident": [0.7, 0.8, 1.2],
        "serpent": [0.5, 0.6, 1.2], "wave": [0.3, 0.58, 1.3], "chariot": [0.6, 0.8, 1.1], "warrior": [0.55, 0.8, 1.2], "winged": [0.5, 0.45, 1.0],
-       "giant": [0.7, 0.62, 1.6], "longhouse": [0.3, 0.64, 1.1], "longship": [0.5, 0.56, 1.3], "runestone": [0.72, 0.8, 1.1], "jetty": [0.5, 0.6, 0.9]}
-BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant", "longship", "longhouse"}
+       "giant": [0.7, 0.62, 1.6], "longhouse": [0.3, 0.64, 1.1], "longship": [0.5, 0.56, 1.3], "runestone": [0.72, 0.8, 1.1], "jetty": [0.5, 0.6, 0.9],
+       "worldtree": [0.5, 0.95, 1.1], "rainbowbridge": [0.5, 0.9, 1.2], "greathall": [0.5, 0.88, 1.05], "worldserpent": [0.5, 0.8, 1.3],
+       "ravens": [0.66, 0.78, 0.85], "greatwolf": [0.5, 0.87, 1.25], "well": [0.42, 0.87, 0.95], "stag": [0.6, 0.86, 0.95]}
+BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant", "longship", "longhouse",
+       "worldtree", "rainbowbridge", "greathall", "worldserpent", "greatwolf"}
 WIDE = [(1.08, 0.5, 0.5), (1.3, 0.3, 0.62), (1.45, 0.7, 0.6), (1.2, 0.5, 0.7), (1.55, 0.4, 0.7), (1.25, 0.65, 0.55)]
 
 RIVER_LANDS = {"valley", "ashfield"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
@@ -296,6 +319,7 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     _, _, gap, para = voice_of(m)
     fps, res = int(m.get("fps", 15)), int(m.get("res", 720))
     t, worlds, subs, chapters, warns, last_ci, lastgap = T0, [], [], [], [], -1, 0.0
+    cards = []
     for i, u in enumerate(us):
         if u["ci"] != last_ci:
             chapters.append((script["chapters"][u["ci"]]["title"], 0 if u["ci"] == 0 else t))
@@ -316,7 +340,9 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
         for c in chunks:
             subs.append({"s": round(x, 3), "e": round(x + d * len(c) / tot, 3), "t": c})
             x += d * len(c) / tot
-        lastgap = int((para if u["pe"] else gap) * SR) / SR
+        lastgap = int(((para if u["pe"] else gap) + (CARD_SECS if u.get("card") else 0.0)) * SR) / SR
+        if u.get("card"):
+            cards.append({"s": round(t + d, 3), "e": round(t + d + lastgap, 3), "title": script["chapters"][u["ci"] + 1]["title"]})
         t += d + lastgap
     total = round(t + TAIL, 3)
     worlds[-1]["e"] = total
@@ -330,7 +356,7 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     if brand is None:
         brand = ""
     plan = {"slug": re.sub(r"[^a-z0-9-]", "", str(m.get("slug", "video")).lower()) or "video", "fps": fps, "width": res * 16 // 9, "height": res, "total": total,
-            "brand": brand, "fade": float(m.get("fade", 0.6)), "scenes": shots, "subs": subs}
+            "brand": brand, "fade": float(m.get("fade", 0.6)), "scenes": shots, "subs": subs, "cards": cards}
     meta = yt_meta(m, chapters, total)
     json.dump(plan, open(os.path.join(out, "plan.json"), "w"))
     json.dump(thumb_spec(m, worlds, total), open(os.path.join(out, "thumb.json"), "w"))

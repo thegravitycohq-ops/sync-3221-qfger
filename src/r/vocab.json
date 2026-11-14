@@ -23,7 +23,9 @@
     "ashfield",
     "grove",
     "isle",
-    "fjord"
+    "fjord",
+    "frost",
+    "ember"
   ],
   "frame": [
     "cave",
@@ -44,7 +46,8 @@
     "rays",
     "bolts",
     "sparks",
-    "aurora"
+    "aurora",
+    "ashfall"
   ],
   "things": [
     "campfire",
@@ -99,7 +102,15 @@
     "longhouse",
     "longship",
     "runestone",
-    "jetty"
+    "jetty",
+    "worldtree",
+    "rainbowbridge",
+    "greathall",
+    "worldserpent",
+    "ravens",
+    "greatwolf",
+    "well",
+    "stag"
   ],
   "cam": [
     "in",
