@@ -185,12 +185,14 @@ jobs:
             n=$(basename $d); dec -in $d/c.bin -out $n.mp4; echo "file '$PWD/$n.mp4'" >> list.txt
           done
           ffmpeg -v error -f concat -safe 0 -i list.txt -i o/narration.m4a -c:v copy -c:a copy -movflags +faststart o/video.mp4
+          ffmpeg -v error -i o/narration.m4a -codec:a libmp3lame -b:a 192k o/audio.mp3
           printf '%s' "$RCLONE_CONF" > rc.conf
           S=$(cat o/slug.txt)
-          for f in video.mp4 captions.srt desc.txt thumb.jpg; do rclone --config rc.conf copyto o/$f "gdrive:Out/$S/$f"; done
+          for f in video.mp4 captions.srt desc.txt thumb.jpg audio.mp3; do rclone --config rc.conf copyto o/$f "gdrive:Out/$S/$f"; done
           F=$(rclone --config rc.conf lsjson --dirs-only gdrive:Out | jq -r --arg s "$S" '[.[] | select(.Name == $s)][0].ID')
           V=$(rclone --config rc.conf lsjson "gdrive:Out/$S" | jq -r '[.[] | select(.Name == "video.mp4")][0].ID')
-          jq -n --arg f "$F" --arg v "$V" '{drive: ("https://drive.google.com/drive/folders/" + $f), video: ("https://drive.google.com/file/d/" + $v + "/view")}' > o/result.json
+          A=$(rclone --config rc.conf lsjson "gdrive:Out/$S" | jq -r '[.[] | select(.Name == "audio.mp3")][0].ID')
+          jq -n --arg f "$F" --arg v "$V" --arg a "$A" '{drive: ("https://drive.google.com/drive/folders/" + $f), video: ("https://drive.google.com/file/d/" + $v + "/view"), audio: ("https://drive.google.com/file/d/" + $a + "/view")}' > o/result.json
       - name: publish
         id: yt
         continue-on-error: true
