@@ -329,6 +329,12 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     fps, res = int(m.get("fps", 15)), int(m.get("res", 720))
     t, worlds, subs, chapters, warns, last_ci, lastgap = T0, [], [], [], [], -1, 0.0
     cards = []
+    # Branded intro (Bruce, 2026-11-15): a first chapter titled "Introduction" is the
+    # welcome; plan.intro covers its spoken span so the renderer can play the channel
+    # name/tagline animation over it, and chapter cards then number the CONTENT
+    # chapters from 1 (the intro itself is unnumbered).
+    intro = bool(script["chapters"]) and script["chapters"][0]["title"].strip().lower() == "introduction"
+    intro_e = None
     for i, u in enumerate(us):
         if u["ci"] != last_ci:
             chapters.append((script["chapters"][u["ci"]]["title"], 0 if u["ci"] == 0 else t))
@@ -351,7 +357,10 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
             x += d * len(c) / tot
         lastgap = int(((para if u["pe"] else gap) + (CARD_SECS if u.get("card") else 0.0)) * SR) / SR
         if u.get("card"):
-            cards.append({"s": round(t + d, 3), "e": round(t + d + lastgap, 3), "title": script["chapters"][u["ci"] + 1]["title"]})
+            cards.append({"s": round(t + d, 3), "e": round(t + d + lastgap, 3), "title": script["chapters"][u["ci"] + 1]["title"],
+                          "n": u["ci"] + 2 - (1 if intro else 0)})
+            if intro and u["ci"] == 0:
+                intro_e = round(t + d, 3)
         t += d + lastgap
     total = round(t + TAIL, 3)
     worlds[-1]["e"] = total
@@ -365,7 +374,10 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     if brand is None:
         brand = ""
     plan = {"slug": re.sub(r"[^a-z0-9-]", "", str(m.get("slug", "video")).lower()) or "video", "fps": fps, "width": res * 16 // 9, "height": res, "total": total,
-            "brand": brand, "fade": float(m.get("fade", 0.6)), "scenes": shots, "subs": subs, "cards": cards}
+            "brand": brand, "fade": float(m.get("fade", 0.6)), "scenes": shots, "subs": subs, "cards": cards,
+            "tagline": str(m.get("tagline", ""))}
+    if intro_e is not None:
+        plan["intro"] = {"s": 0, "e": intro_e}
     meta = yt_meta(m, chapters, total)
     json.dump(plan, open(os.path.join(out, "plan.json"), "w"))
     json.dump(thumb_spec(m, worlds, total), open(os.path.join(out, "thumb.json"), "w"))
