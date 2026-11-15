@@ -3,11 +3,17 @@ import {AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile, Img} from 're
 import {Scene, Spec} from './art';
 import './fonts';
 
-// Watermark constants measured from the reference screenshots (1366x768): text about 26% of the frame width,
-// cap height 5.3% of frame height, 3.5% in from the right, 4.7% down from the top, white at about 0.24 opacity.
-export const WM = {font: 'Anton, Impact, sans-serif', size: 0.0616, top: 0.045, right: 0.035, opacity: 0.24, color: '255,255,255'};
-// Subtitles: italic, yellow, black outline, lower third.
-export const SUB = {font: 'Roboto, Arial, sans-serif', size: 0.045, bottom: 0.08, color: '#f6d84c', stroke: 0.006};
+// Wordmark — Variant A (approved by Bruce, 2026-11-15): small gold serif,
+// soft glow, bottom centre. The dashboard still sends only the brand NAME;
+// this changes purely how the renderer draws that string.
+// Font stack: Cormorant Garamond when the @fontsource import in fonts.ts is
+// present, otherwise Georgia / Times — always a serif, never Anton.
+export const WM = {font: `'Cormorant Garamond', Georgia, 'Times New Roman', serif`, size: 0.038, bottom: 0.035, color: '#e3c268'};
+// Chapter cards keep the old Anton caps — the wordmark change must not restyle them.
+export const CARD_FONT = 'Anton, Impact, sans-serif';
+// Subtitles: italic, yellow, black outline — moved to the MIDDLE of the frame
+// (Bruce, 2026-11-15) so they never collide with the bottom-centre wordmark.
+export const SUB = {font: 'Roboto, Arial, sans-serif', size: 0.054, bottom: 0.45, color: '#f6d84c', stroke: 0.007};
 
 // Chapter cards (added 2026-11-14): plan.cards is an OPTIONAL list of silent windows emitted by
 // prep.py at chapter boundaries. During a window no narration plays; the chapter's title is drawn
@@ -33,11 +39,11 @@ export const Video: React.FC<Plan> = (plan) => {
       {mixIn > 0 && nxt && <AbsoluteFill style={{opacity: mixIn}}>{draw(nxt)}</AbsoluteFill>}
       <AbsoluteFill style={{mixBlendMode: 'multiply', opacity: 0.45}}><Img src={staticFile('paper.png')} style={{width: '100%', height: '100%', objectFit: 'cover'}} /></AbsoluteFill>
       <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(30,20,10,0.32) 100%)'}} />
-      {plan.brand && <div style={{position: 'absolute', top: height * WM.top, right: width * WM.right, font: `400 ${height * WM.size}px/1 ${WM.font}`, textTransform: 'uppercase', whiteSpace: 'nowrap', color: `rgba(${WM.color},${WM.opacity})`}}>{plan.brand}</div>}
+      {plan.brand && <div style={{position: 'absolute', left: 0, right: 0, bottom: height * WM.bottom, textAlign: 'center', font: `600 ${height * WM.size}px/1 ${WM.font}`, letterSpacing: '0.04em', whiteSpace: 'nowrap', color: WM.color, textShadow: '0 0 14px rgba(227,194,104,0.55), 0 2px 6px rgba(0,0,0,0.7)'}}>{plan.brand}</div>}
       {sub && <div style={{position: 'absolute', left: '8%', right: '8%', bottom: height * SUB.bottom, textAlign: 'center', opacity: subA, font: `italic 500 ${height * SUB.size}px/1.2 ${SUB.font}`, color: SUB.color, WebkitTextStroke: `${height * SUB.stroke}px #000`, paintOrder: 'stroke fill', textShadow: '0 2px 6px rgba(0,0,0,0.7)'}}>{sub.t}</div>}
       {card && <div style={{position: 'absolute', left: '10%', right: '10%', top: height * 0.4, textAlign: 'center', opacity: cardA}}>
         <div style={{width: width * 0.09, height: 2, margin: '0 auto 18px', background: 'rgba(244,236,216,0.75)'}} />
-        <div style={{font: `400 ${height * 0.062}px/1.25 ${WM.font}`, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#f4ecd8', textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.9)'}}>{card.title}</div>
+        <div style={{font: `400 ${height * 0.062}px/1.25 ${CARD_FONT}`, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#f4ecd8', textShadow: '0 3px 14px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.9)'}}>{card.title}</div>
         <div style={{width: width * 0.09, height: 2, margin: '18px auto 0', background: 'rgba(244,236,216,0.75)'}} />
       </div>}
       <AbsoluteFill style={{background: '#000', opacity: black}} />

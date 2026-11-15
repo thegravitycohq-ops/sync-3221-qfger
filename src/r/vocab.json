@@ -25,7 +25,9 @@
     "isle",
     "fjord",
     "frost",
-    "ember"
+    "ember",
+    "fields",
+    "meadow"
   ],
   "frame": [
     "cave",
@@ -47,7 +49,8 @@
     "bolts",
     "sparks",
     "aurora",
-    "ashfall"
+    "ashfall",
+    "motes"
   ],
   "things": [
     "campfire",
@@ -110,7 +113,17 @@
     "ravens",
     "greatwolf",
     "well",
-    "stag"
+    "stag",
+    "cottage",
+    "church",
+    "mill",
+    "marketcross",
+    "plough",
+    "cart",
+    "haystack",
+    "beehive",
+    "bench",
+    "graves"
   ],
   "cam": [
     "in",

@@ -165,6 +165,12 @@ KW = [
     (r"great wolf|fenrir|the wolf", "thing", "greatwolf"), (r"ravens?|huginn|muninn", "thing", "ravens"),
     (r"well of|the well|sacred well|three wells|the wells", "thing", "well"), (r"stag|hart", "thing", "stag"),
     (r"ash drifts|ash drifted|ash falling|falling ash|ash settles|ash settled|drifting ash", "fx", "ashfall"),
+    (r"cottage|cottages", "thing", "cottage"), (r"church|churches|chapel|chancel|nave", "thing", "church"),
+    (r"mill|miller|millstone|millpond|watermill", "thing", "mill"), (r"market cross|market day|market|fair day", "thing", "marketcross"),
+    (r"plough|ploughs|ploughing|plow|oxen|furrow|furrows", "thing", "plough"), (r"cart|carts|waggon|wagon", "thing", "cart"),
+    (r"haystack|haystacks|hayrick|haymaking|hay rick", "thing", "haystack"), (r"beehive|beehives|bees|hive|hives|honey|skep|skeps", "thing", "beehive"),
+    (r"alehouse|bench|benches|tavern", "thing", "bench"), (r"churchyard|gravestone|gravestones|headstone|headstones", "thing", "graves"),
+    (r"dust motes|motes|golden dust|dust in the light", "fx", "motes"),
     (r"fire|fires|flame|flames|hearth|embers|coals|campfire", "thing", "campfire"), (r"hut|huts|shelter|shelters|house|houses|home|homes|dwelling", "thing", "hut"),
     (r"tent|tents", "thing", "tent"), (r"cabin|cottage", "thing", "cabin"), (r"tree|trees|oak|branches|orchard", "thing", "tree"), (r"pine|pines|conifer", "thing", "pine"),
     (r"palm|palms", "thing", "palm"), (r"stone|stones|rock|rocks|boulder|boulders|flint|pebbles", "thing", "rocks"), (r"cairn|cairns", "thing", "cairn"),
@@ -190,12 +196,15 @@ DEF = {"campfire": [0.55, 0.8, 1.4], "hut": [0.22, 0.62, 0.9], "tent": [0.8, 0.6
        "serpent": [0.5, 0.6, 1.2], "wave": [0.3, 0.58, 1.3], "chariot": [0.6, 0.8, 1.1], "warrior": [0.55, 0.8, 1.2], "winged": [0.5, 0.45, 1.0],
        "giant": [0.7, 0.62, 1.6], "longhouse": [0.3, 0.64, 1.1], "longship": [0.5, 0.56, 1.3], "runestone": [0.72, 0.8, 1.1], "jetty": [0.5, 0.6, 0.9],
        "worldtree": [0.5, 0.95, 1.1], "rainbowbridge": [0.5, 0.9, 1.2], "greathall": [0.5, 0.88, 1.05], "worldserpent": [0.5, 0.8, 1.3],
-       "ravens": [0.66, 0.78, 0.85], "greatwolf": [0.5, 0.87, 1.25], "well": [0.42, 0.87, 0.95], "stag": [0.6, 0.86, 0.95]}
+       "ravens": [0.66, 0.78, 0.85], "greatwolf": [0.5, 0.87, 1.25], "well": [0.42, 0.87, 0.95], "stag": [0.6, 0.86, 0.95],
+       "cottage": [0.3, 0.74, 1.05], "church": [0.52, 0.92, 1.1], "mill": [0.7, 0.8, 1.15], "marketcross": [0.5, 0.84, 1.0],
+       "plough": [0.44, 0.82, 1.1], "cart": [0.56, 0.84, 1.0], "haystack": [0.64, 0.86, 1.05], "beehive": [0.32, 0.86, 0.9],
+       "bench": [0.5, 0.86, 0.9], "graves": [0.64, 0.88, 0.9]}
 BIG = {"pyramid", "castle", "lighthouse", "boat", "herd", "palm", "tree", "pine", "temple", "serpent", "wave", "chariot", "giant", "longship", "longhouse",
-       "worldtree", "rainbowbridge", "greathall", "worldserpent", "greatwolf"}
+       "worldtree", "rainbowbridge", "greathall", "worldserpent", "greatwolf", "church", "mill"}
 WIDE = [(1.08, 0.5, 0.5), (1.3, 0.3, 0.62), (1.45, 0.7, 0.6), (1.2, 0.5, 0.7), (1.55, 0.4, 0.7), (1.25, 0.65, 0.55)]
 
-RIVER_LANDS = {"valley", "ashfield"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
+RIVER_LANDS = {"valley", "ashfield", "meadow"}  # lands whose drawing always includes a river (art.tsx LAND water: 'river')
 RIVER_SAFE = 0.24         # ground things stay at least this far (in x) from the river centre
 
 

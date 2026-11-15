@@ -1,6 +1,54 @@
 // Hand-drawn scene engine. Pure function of (spec, frame): no randomness, no clock.
 // Look: wobbling ink lines (SVG displacement, new seed 6x/second = "boil"), flat watercolour fills, grain.
 import React from 'react';
+import bg_fields_dawn from './plates/bg_fields_dawn.jpg';
+import bg_fields_day from './plates/bg_fields_day.jpg';
+import bg_fields_dusk from './plates/bg_fields_dusk.jpg';
+import bg_forest_day from './plates/bg_forest_day.jpg';
+import bg_grove_day from './plates/bg_grove_day.jpg';
+import bg_meadow_dawn from './plates/bg_meadow_dawn.jpg';
+import bg_meadow_day from './plates/bg_meadow_day.jpg';
+import bg_meadow_dusk from './plates/bg_meadow_dusk.jpg';
+import bg_meadow_overcast from './plates/bg_meadow_overcast.jpg';
+import bg_plain_day from './plates/bg_plain_day.jpg';
+import bg_plain_dusk from './plates/bg_plain_dusk.jpg';
+import bg_plain_overcast from './plates/bg_plain_overcast.jpg';
+import bg_snow_dawn from './plates/bg_snow_dawn.jpg';
+import bg_snow_day from './plates/bg_snow_day.jpg';
+import bg_snow_night from './plates/bg_snow_night.jpg';
+import bg_valley_day from './plates/bg_valley_day.jpg';
+import bg_village_dawn from './plates/bg_village_dawn.jpg';
+import bg_village_day from './plates/bg_village_day.jpg';
+import bg_village_dusk from './plates/bg_village_dusk.jpg';
+import bg_village_night from './plates/bg_village_night.jpg';
+import bg_village_overcast from './plates/bg_village_overcast.jpg';
+import prop_beehive from './plates/prop_beehive.png';
+import prop_bench from './plates/prop_bench.png';
+import prop_boat from './plates/prop_boat.png';
+import prop_campfire from './plates/prop_campfire.png';
+import prop_cart from './plates/prop_cart.png';
+import prop_church from './plates/prop_church.png';
+import prop_cottage from './plates/prop_cottage.png';
+import prop_gate from './plates/prop_gate.png';
+import prop_graves from './plates/prop_graves.png';
+import prop_haystack from './plates/prop_haystack.png';
+import prop_herd from './plates/prop_herd.png';
+import prop_lantern from './plates/prop_lantern.png';
+import prop_marketcross from './plates/prop_marketcross.png';
+import prop_mill from './plates/prop_mill.png';
+import prop_plough from './plates/prop_plough.png';
+import prop_rocks from './plates/prop_rocks.png';
+import prop_stall from './plates/prop_stall.png';
+import prop_tree from './plates/prop_tree.png';
+import prop_well from './plates/prop_well.png';
+import fg_fields from './plates/fg_fields.png';
+import fg_forest from './plates/fg_forest.png';
+import fg_grove from './plates/fg_grove.png';
+import fg_meadow from './plates/fg_meadow.png';
+import fg_plain from './plates/fg_plain.png';
+import fg_snow from './plates/fg_snow.png';
+import fg_valley from './plates/fg_valley.png';
+import fg_village from './plates/fg_village.png';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
 const INK = '#3a2e28';
@@ -40,6 +88,8 @@ const LAND: Record<string, any> = {
   fjord: {far: '#8fa0b4', mid: '#77897c', gnd: '#8a8f66', water: 'sea', trees: 'pine', peaks: 1},
   frost: {far: '#aebfd0', mid: '#c3d2de', gnd: '#dde7ee', water: 'none', trees: 'none', peaks: 1},
   ember: {far: '#5e4034', mid: '#6e4632', gnd: '#7d4f30', water: 'none', trees: 'none', dunes: 1},
+  fields: {far: '#a9b08e', mid: '#93a45e', gnd: '#a8a45e', water: 'none', trees: 'few', grass: 1},
+  meadow: {far: '#a9b08e', mid: '#9db083', gnd: '#a9ad6b', water: 'river', trees: 'broad'},
 };
 
 type Ctx = {pal: (typeof SKY)['day']; f: number; fps: number; r: () => number; land: any; night: boolean};
@@ -679,9 +729,229 @@ const Stag = ({x, y, s = 1, c}: any) => {
     </g>
   );
 };
-const THINGS: Record<string, any> = {campfire: Campfire, hut: Hut, cabin: Cabin, tent: Tent, tree: Tree, pine: (p: any) => <Tree {...p} k="pine" />, palm: (p: any) => <Tree {...p} k="palm" />, rocks: Rocks, cairn: Cairn, pyramid: Pyramid, lighthouse: Lighthouse, castle: Castle, boat: Boat, lantern: Lantern, herd: Herd, person: Person, lying: Lying, CanalBoat: CanalBoat, LockGate: LockGate, StoneLock: StoneLock, StoneAqueduct: StoneAqueduct, TowpathHorse: TowpathHorse, Towpath: Towpath, SaltWorks: SaltWorks, PacketCabin: PacketCabin, temple: Temple, pillar: Pillar, throne: Throne, bolt: Bolt, trident: Trident, serpent: Serpent, wave: Wave, chariot: Chariot, aurafigure: AuraFigure, winged: Winged, warrior: Warrior, giant: Giant, stall: Stall, archbridge: ArchBridge, tiertower: TierTower, lanternstring: LanternString, willow: Willow, gate: Gate, shopfront: Shopfront, punt: Punt, bamboo: Bamboo, pavilion: Pavilion, lookout: Lookout, longhouse: Longhouse, longship: Longship, runestone: Runestone, jetty: Jetty, worldtree: WorldTree, rainbowbridge: RainbowBridge, greathall: GreatHall, worldserpent: WorldSerpent, ravens: Ravens, greatwolf: GreatWolf, well: Well, stag: Stag};
+
+// ---------- Village pack (2026-11-15): cottages, a church, a mill, the working year ----------
+// Drawn at 0,0 = feet, s = scale. Motion is SLOW: sin(c.f / N) only. No random, no clock, no faces, no text.
+const Cottage = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <rect x="-78" y="-78" width="156" height="78" fill={tint('#ddd0b4', c)} {...ln} />
+    {[-52, 0, 52].map((o) => <rect key={o} x={o - 5} y="-78" width="10" height="78" fill={tint('#5d4636', c)} {...ln} />)}
+    <rect x="-78" y="-46" width="156" height="9" fill={tint('#5d4636', c)} {...ln} />
+    <path d="M-98 -72 L0 -158 L98 -72 L84 -58 L0 -136 L-84 -58Z" fill={tint('#b28c58', c)} {...ln} />
+    {[-64, -32, 0, 32, 64].map((o, i) => <path key={i} d={`M${o} -64 L${o * 0.35} -124`} stroke={INK} strokeWidth="1.2" opacity="0.45" />)}
+    <path d="M-16 0 L-16 -48 C-16 -58 16 -58 16 -48 L16 0Z" fill={tint('#4a362a', c)} {...ln} />
+    <rect x="38" y="-58" width="26" height="26" fill={c.night ? '#f2b45a' : '#cfd6cc'} {...ln} />
+    <path d="M51 -58 V-32 M38 -45 H64" stroke={INK} strokeWidth="1.8" />
+    {c.night && <ellipse cx="51" cy="-45" rx="44" ry="36" fill="#f6b04a" opacity="0.16" style={{mixBlendMode: 'screen'}} />}
+  </g>
+);
+const Church = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <rect x="-32" y="-236" width="88" height="236" fill={tint('#a39a86', c)} {...ln} />
+    <rect x="56" y="-126" width="152" height="126" fill={tint('#ada48f', c)} {...ln} />
+    <path d="M56 -126 L132 -176 L208 -126Z" fill={tint('#7a6a52', c)} {...ln} />
+    <path d="M-44 -236 L12 -320 L68 -236Z" fill={tint('#6e6250', c)} {...ln} />
+    <path d="M12 -320 V-342 M5 -334 H19" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+    <path d="M3 -206 a9 11 0 0 1 18 0 v24 H3Z" fill={c.night ? '#f2b45a' : '#5d6a72'} {...ln} />
+    <path d="M3 -108 a9 11 0 0 1 18 0 v24 H3Z" fill={c.night ? '#f2b45a' : '#5d6a72'} {...ln} />
+    {[92, 158].map((o) => <path key={o} d={`M${o} -102 a10 13 0 0 1 20 0 v44 h-20Z`} fill={c.night ? '#f2b45a' : '#5d6a72'} {...ln} />)}
+    <path d="M0 0 L0 -52 C0 -64 24 -64 24 -52 L24 0Z" fill={tint('#4a3a2c', c)} {...ln} />
+    {c.night && <ellipse cx="132" cy="-70" rx="90" ry="60" fill="#f6b04a" opacity="0.1" style={{mixBlendMode: 'screen'}} />}
+  </g>
+);
+const Mill = ({x, y, s = 1, c}: any) => {
+  const rot = Math.sin(c.f / 90 + x) * 5;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <rect x="-26" y="-148" width="148" height="148" fill={tint('#9a7a54', c)} {...ln} />
+      <path d="M-40 -144 L48 -196 L136 -144Z" fill={tint('#7a5c3e', c)} {...ln} />
+      <rect x="24" y="-90" width="30" height="90" fill={tint('#4a362a', c)} {...ln} />
+      <rect x="-8" y="-126" width="24" height="24" fill={c.night ? '#f2b45a' : '#cfd6cc'} {...ln} />
+      <path d="M4 -126 V-102 M-8 -114 H16" stroke={INK} strokeWidth="1.8" />
+      <g transform={`translate(-66 -76) rotate(${rot})`}>
+        <circle r="76" fill="none" stroke={tint('#6b4c30', c)} strokeWidth="8" />
+        <circle r="50" fill="none" stroke={tint('#6b4c30', c)} strokeWidth="4" opacity="0.8" />
+        {[0, 45, 90, 135].map((a) => <path key={a} d={`M${(-76 * Math.cos(a * Math.PI / 180)).toFixed(1)} ${(-76 * Math.sin(a * Math.PI / 180)).toFixed(1)} L${(76 * Math.cos(a * Math.PI / 180)).toFixed(1)} ${(76 * Math.sin(a * Math.PI / 180)).toFixed(1)}`} stroke={tint('#6b4c30', c)} strokeWidth="5" />)}
+      </g>
+      <circle cx="-66" cy="-76" r="10" fill={tint('#543e28', c)} {...ln} />
+    </g>
+  );
+};
+const MarketCross = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <ellipse cx="0" cy="0" rx="86" ry="13" fill={tint('#a39a86', c)} {...ln} />
+    <ellipse cx="0" cy="-14" rx="62" ry="11" fill={tint('#ada48f', c)} {...ln} />
+    <ellipse cx="0" cy="-27" rx="40" ry="9" fill={tint('#b5ab98', c)} {...ln} />
+    <rect x="-7" y="-164" width="14" height="140" fill={tint('#a39a86', c)} {...ln} />
+    <path d="M0 -198 V-156 M-14 -184 H14" stroke={tint('#8a8272', c)} strokeWidth="6" strokeLinecap="round" />
+  </g>
+);
+const Plough = ({x, y, s = 1, c}: any) => {
+  const bob = Math.sin(c.f / 80 + x) * 1.4;
+  const ox = (oxo: number, oyo: number, sc: number) => (
+    <g key={oxo} transform={`translate(${oxo} ${oyo + bob}) scale(${sc})`}>
+      <ellipse cx="0" cy="-52" rx="52" ry="24" fill={tint('#8a5f43', c)} {...ln} />
+      {[-34, -20, 24, 38].map((l, i) => <path key={i} d={`M${l} -36 L${l} 0`} stroke={tint('#75503a', c)} strokeWidth="7" strokeLinecap="round" />)}
+      <g transform="translate(56 -62)">
+        <ellipse cx="10" cy="0" rx="17" ry="13" fill={tint('#8a5f43', c)} {...ln} />
+        <path d="M0 -10 C-8 -22 -18 -25 -27 -21 M20 -10 C27 -22 37 -24 44 -19" fill="none" stroke={tint('#d9cdb2', c)} strokeWidth="4" strokeLinecap="round" />
+        <circle cx="16" cy="-2" r="2.6" fill={INK} />
+      </g>
+      <path d="M-52 -56 q-10 22 -4 40" fill="none" stroke={tint('#75503a', c)} strokeWidth="5" strokeLinecap="round" />
+    </g>
+  );
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      {[-196, -168, -140].map((o, i) => <path key={i} d={`M${o} 8 q70 -8 150 -3`} fill="none" stroke={INK} strokeWidth="2" opacity="0.3" />)}
+      <path d="M-176 -30 L-120 -40 M-168 -30 L-186 4 L-168 6 L-152 -22" fill="none" stroke={tint('#6b4c30', c)} strokeWidth="6" strokeLinecap="round" />
+      <path d="M-186 4 L-164 12 L-172 -4Z" fill={tint('#8f959c', c)} {...ln} />
+      {ox(-52, 0, 1)}
+      {ox(66, -10, 0.94)}
+      <path d="M-104 -78 L-30 -84 M14 -88 L104 -92" stroke={tint('#6b4c30', c)} strokeWidth="6" strokeLinecap="round" />
+      <path d="M-118 -42 L-104 -78" stroke={tint('#6b4c30', c)} strokeWidth="5" strokeLinecap="round" />
+    </g>
+  );
+};
+const Cart = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    {[-58, 58].map((wx) => <g key={wx}><circle cx={wx} cy="-34" r="34" fill="none" stroke={tint('#6b4c30', c)} strokeWidth="6" />{[0, 60, 120].map((a) => <path key={a} d={`M${(wx - 30 * Math.cos(a * Math.PI / 180)).toFixed(1)} ${(-34 - 30 * Math.sin(a * Math.PI / 180)).toFixed(1)} L${(wx + 30 * Math.cos(a * Math.PI / 180)).toFixed(1)} ${(-34 + 30 * Math.sin(a * Math.PI / 180)).toFixed(1)}`} stroke={tint('#6b4c30', c)} strokeWidth="4" />)}<circle cx={wx} cy="-34" r="6" fill={tint('#543e28', c)} {...ln} /></g>)}
+    <path d="M-84 -64 L84 -64 L72 -30 L-72 -30Z" fill={tint('#8a6a42', c)} {...ln} />
+    {[-64, -32, 0, 32, 64].map((o) => <path key={o} d={`M${o} -64 V-34`} stroke={INK} strokeWidth="2" opacity="0.5" />)}
+    <path d="M-70 -66 C-40 -96 40 -96 70 -66 C40 -79 -40 -79 -70 -66Z" fill={tint('#c9a85e', c)} {...ln} />
+    <path d="M84 -52 L138 -34 M84 -42 L138 -26" stroke={tint('#6b4c30', c)} strokeWidth="5" strokeLinecap="round" />
+  </g>
+);
+const Haystack = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    {[-56, -19, 19, 56].map((o) => <path key={o} d={`M${o} 0 V-24`} stroke={tint('#6b4c30', c)} strokeWidth="6" />)}
+    <path d="M-84 -18 C-88 -94 -48 -150 0 -156 C48 -150 88 -94 84 -18 C50 -6 -50 -6 -84 -18Z" fill={tint('#c2a054', c)} {...ln} />
+    {[-46, -80, -112].map((o, i) => <path key={i} d={`M${-64 + i * 10} ${o} C-28 ${o + 9} 28 ${o + 9} ${64 - i * 10} ${o}`} fill="none" stroke={INK} strokeWidth="1.6" opacity="0.4" />)}
+    <path d="M0 -156 L0 -172" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+  </g>
+);
+const Beehive = ({x, y, s = 1, c}: any) => {
+  const skep = (sx: number, sy: number, sc: number) => (
+    <g key={sx} transform={`translate(${sx} ${sy}) scale(${sc})`}>
+      <path d="M-30 0 C-32 -34 -18 -54 0 -56 C18 -54 32 -34 30 0Z" fill={tint('#c9a85e', c)} {...ln} />
+      {[-14, -28, -42].map((o) => <path key={o} d={`M${-25 + (o + 42) * 0.16} ${o} H${25 - (o + 42) * 0.16}`} stroke={INK} strokeWidth="1.6" opacity="0.45" />)}
+      <ellipse cx="0" cy="-8" rx="6" ry="4" fill={tint('#4a362a', c)} />
+    </g>
+  );
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <rect x="-86" y="-16" width="172" height="8" fill={tint('#8a6a42', c)} {...ln} />
+      {[-70, 70].map((o) => <path key={o} d={`M${o} -8 V2`} stroke={INK} strokeWidth="5" />)}
+      {skep(-48, -14, 1)}
+      {skep(38, -14, 0.88)}
+      {[[20, -118], [64, -94], [-8, -102]].map(([bx, by], i) => <circle key={i} cx={bx + Math.sin(c.f / 40 + i * 2.4) * 7} cy={by + Math.cos(c.f / 52 + i * 1.8) * 4} r="2.6" fill={tint('#3a2e28', c)} />)}
+    </g>
+  );
+};
+const Bench = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <rect x="-96" y="-64" width="192" height="9" rx="3" fill={tint('#7a5c3e', c)} {...ln} />
+    {[-84, 84].map((o) => <path key={o} d={`M${o} -56 V0`} stroke={tint('#6b4c30', c)} strokeWidth="7" />)}
+    {[-46, 34].map((o, i) => <g key={i} transform={`translate(${o} -64)`}><path d="M-8 0 v-13 h16 v13Z" fill={tint('#9a7a4e', c)} {...ln} /><path d="M8 -10 a6 5 0 1 1 0 7" fill="none" stroke={tint('#9a7a4e', c)} strokeWidth="3" /></g>)}
+    <g transform="translate(-2 -64)"><path d="M-9 0 C-11 -12 -7 -20 0 -22 C7 -20 11 -12 9 0Z" fill={tint('#7a6a8a', c)} {...ln} /><path d="M0 -22 v-5 M-5 -27 h10" stroke={INK} strokeWidth="2" /></g>
+    <rect x="-88" y="-34" width="176" height="9" rx="3" fill={tint('#8a6a42', c)} {...ln} />
+    {[-72, 72].map((o) => <path key={o} d={`M${o} -26 V0`} stroke={tint('#6b4c30', c)} strokeWidth="7" />)}
+  </g>
+);
+const Graves = ({x, y, s = 1, c}: any) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    {[[-52, 62, 1], [2, 78, 1.15], [56, 58, 0.9]].map(([gx, gh, gs], i) => (
+      <g key={i} transform={`translate(${gx} 0) scale(${gs})`}>
+        <path d={`M-17 0 v-${(gh * 0.7).toFixed(0)} a17 15 0 0 1 34 0 V0Z`} fill={tint('#a39a86', c)} {...ln} />
+        <path d={`M-8 ${(-gh * 0.5).toFixed(0)} h16 M0 ${(-gh * 0.6).toFixed(0)} v16`} stroke={INK} strokeWidth="1.8" opacity="0.5" />
+      </g>
+    ))}
+    {[-74, -26, 30, 78].map((o, i) => <path key={i} d={`M${o} 0 q-2 -10 1 -16 M${o + 5} 0 q1 -8 5 -13`} fill="none" stroke={tint('#7f8e4e', c)} strokeWidth="2" strokeLinecap="round" />)}
+  </g>
+);
+
+const THINGS: Record<string, any> = {campfire: Campfire, hut: Hut, cabin: Cabin, tent: Tent, tree: Tree, pine: (p: any) => <Tree {...p} k="pine" />, palm: (p: any) => <Tree {...p} k="palm" />, rocks: Rocks, cairn: Cairn, pyramid: Pyramid, lighthouse: Lighthouse, castle: Castle, boat: Boat, lantern: Lantern, herd: Herd, person: Person, lying: Lying, CanalBoat: CanalBoat, LockGate: LockGate, StoneLock: StoneLock, StoneAqueduct: StoneAqueduct, TowpathHorse: TowpathHorse, Towpath: Towpath, SaltWorks: SaltWorks, PacketCabin: PacketCabin, temple: Temple, pillar: Pillar, throne: Throne, bolt: Bolt, trident: Trident, serpent: Serpent, wave: Wave, chariot: Chariot, aurafigure: AuraFigure, winged: Winged, warrior: Warrior, giant: Giant, stall: Stall, archbridge: ArchBridge, tiertower: TierTower, lanternstring: LanternString, willow: Willow, gate: Gate, shopfront: Shopfront, punt: Punt, bamboo: Bamboo, pavilion: Pavilion, lookout: Lookout, longhouse: Longhouse, longship: Longship, runestone: Runestone, jetty: Jetty, worldtree: WorldTree, rainbowbridge: RainbowBridge, greathall: GreatHall, worldserpent: WorldSerpent, ravens: Ravens, greatwolf: GreatWolf, well: Well, stag: Stag, cottage: Cottage, church: Church, mill: Mill, marketcross: MarketCross, plough: Plough, cart: Cart, haystack: Haystack, beehive: Beehive, bench: Bench, graves: Graves};
 // group = n seated people in an arc around (x,y), e.g. ["group",0.5,0.8,1,5]
 const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, i) => { const a = Math.PI * (0.15 + (0.7 * i) / Math.max(1, n - 1)); return <Person key={i} x={x + Math.cos(a) * 130 * s * 1.5} y={y + Math.sin(a) * 36 * s + 20 * s} s={s * 0.9} c={c} seated flip={Math.cos(a) > 0} />; })}</g>;
+
+// ---------- Painted plates (2026-11-15, Bruce's painted standard) ----------
+// Every land+sky the script uses has a generated painted background plate; the
+// big props are painted plates keyed from magenta; the little figures (person,
+// group, lying) stay code-drawn and animated — they are the moving element.
+// A land/sky or thing with no plate falls back to the code-drawn original, so
+// older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
+const BG_PLATES: Record<string, any> = {'fields|dawn': bg_fields_dawn, 'fields|day': bg_fields_day, 'fields|dusk': bg_fields_dusk, 'forest|day': bg_forest_day, 'grove|day': bg_grove_day, 'meadow|dawn': bg_meadow_dawn, 'meadow|day': bg_meadow_day, 'meadow|dusk': bg_meadow_dusk, 'meadow|overcast': bg_meadow_overcast, 'plain|day': bg_plain_day, 'plain|dusk': bg_plain_dusk, 'plain|overcast': bg_plain_overcast, 'snow|dawn': bg_snow_dawn, 'snow|day': bg_snow_day, 'snow|night': bg_snow_night, 'valley|day': bg_valley_day, 'village|dawn': bg_village_dawn, 'village|day': bg_village_day, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night, 'village|overcast': bg_village_overcast};
+const FG_PLATES: Record<string, any> = {fields: fg_fields, forest: fg_forest, grove: fg_grove, meadow: fg_meadow, plain: fg_plain, snow: fg_snow, valley: fg_valley, village: fg_village};
+// h = height in scene units at scale 1 (matched to the drawn originals);
+// aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
+// glow = [x, y] fractions of warm windows/flames for the Ambient flicker.
+const PROP_PLATES: Record<string, any> = {
+  beehive: {img: prop_beehive, h: 78, aspect: 1.358, ax: 0.493},
+  bench: {img: prop_bench, h: 86, aspect: 1.636, ax: 0.494},
+  boat: {img: prop_boat, h: 55, aspect: 3.224, ax: 0.503, noShadow: true},
+  campfire: {img: prop_campfire, h: 46, aspect: 1.204, ax: 0.505, glow: [[0.5, 0.5]]},
+  cart: {img: prop_cart, h: 96, aspect: 1.16, ax: 0.505},
+  church: {img: prop_church, h: 342, aspect: 0.719, ax: 0.483, glow: [[0.68, 0.68], [0.86, 0.68]]},
+  cottage: {img: prop_cottage, h: 160, aspect: 0.994, ax: 0.501, glow: [[0.18, 0.72], [0.83, 0.72]]},
+  gate: {img: prop_gate, h: 100, aspect: 2.139, ax: 0.502},
+  graves: {img: prop_graves, h: 90, aspect: 1.942, ax: 0.515},
+  haystack: {img: prop_haystack, h: 172, aspect: 1.003, ax: 0.492},
+  herd: {img: prop_herd, h: 58, aspect: 1.797, ax: 0.505},
+  lantern: {img: prop_lantern, h: 95, aspect: 0.351, ax: 0.339, glow: [[0.5, 0.2]]},
+  marketcross: {img: prop_marketcross, h: 198, aspect: 0.703, ax: 0.5},
+  mill: {img: prop_mill, h: 200, aspect: 0.981, ax: 0.496, glow: [[0.3, 0.42]]},
+  plough: {img: prop_plough, h: 95, aspect: 2.278, ax: 0.49},
+  rocks: {img: prop_rocks, h: 62, aspect: 1.654, ax: 0.485},
+  stall: {img: prop_stall, h: 175, aspect: 1.101, ax: 0.501},
+  tree: {img: prop_tree, h: 195, aspect: 1.015, ax: 0.495, sway: 0.5},
+  well: {img: prop_well, h: 150, aspect: 0.742, ax: 0.505}
+};
+// Per-sky grading for prop plates (bg plates are painted per-sky already).
+const GRADES: Record<string, string> = {dawn: 'gr-dawn', dusk: 'gr-dusk', night: 'gr-night', overcast: 'gr-overcast'};
+const FG_OPACITY: Record<string, number> = {dawn: 0.66, day: 0.5, dusk: 0.85, night: 0.95, overcast: 0.6};
+const PaintedThing = ({t, pp, c, sky}: any) => {
+  const h = pp.h * t.s, w = h * pp.aspect;
+  const sway = pp.sway ? Math.sin(c.f / 58 + t.i * 1.7) * pp.sway : 0;
+  return (
+    <g transform={sway ? `rotate(${sway.toFixed(2)} ${t.x} ${t.y})` : undefined}>
+      {!pp.noShadow && <ellipse cx={t.x} cy={t.y - 2} rx={Math.min(w * 0.4, 130)} ry={Math.max(4, h * 0.035)} fill="#101408" opacity="0.12" />}
+      <image href={pp.img} x={t.x - w * pp.ax} y={t.y - h} width={w} height={h} filter={GRADES[sky] ? `url(#${GRADES[sky]})` : undefined} />
+    </g>
+  );
+};
+// ---------- Ambient layer ----------
+// Seeded, deterministic ambient life over the plates (see BUILD-REPORT.md):
+// window/hearth flicker at painted glow anchors, water shimmer on river
+// lands, bonus fireflies at dusk/night, a small dawn/day bird party, and
+// extra soft mist wisps. All choices derive from hash(spec.seed) via rng(),
+// drawn in a fixed order, so every render of a shot is identical.
+const AMBIENT_WATER = ['meadow', 'valley', 'lake'];
+const Ambient = ({c, spec, f}: any) => {
+  const fx: string[] = spec.fx || [];
+  const r = rng(hash(`amb${spec.seed}`));
+  const wispN = fx.includes('mist') ? 1 : 1 + Math.floor(r() * 3);
+  const wispOp = (0.05 + r() * 0.09) * (fx.includes('mist') ? 0.45 : 1);
+  const ffOn = (spec.sky === 'dusk' || spec.sky === 'night') && r() < 0.55 && !fx.includes('fireflies');
+  const birdsOn = (spec.sky === 'dawn' || spec.sky === 'day') && r() < 0.4 && !fx.includes('birds');
+  const shim = AMBIENT_WATER.includes(spec.land) ? 0.35 + r() * 0.55 : 0;
+  const dark = spec.sky === 'dawn' || spec.sky === 'dusk' || spec.sky === 'night';
+  const glows: any[] = [];
+  if (dark) (spec.things || []).forEach((t: any[], i: number) => {
+    const pp = PROP_PLATES[t[0]];
+    if (pp && pp.glow) pp.glow.forEach((g: number[], j: number) => {
+      const h = pp.h * (t[3] ?? 1), w = h * pp.aspect;
+      glows.push({x: t[1] * W - w * pp.ax + g[0] * w, y: t[2] * H - h + g[1] * h, rx: w * 0.15, ry: h * 0.12, ph: (hash(`${spec.seed}${t[0]}${i}${j}`) % 7) * 1.3});
+    });
+  });
+  return (
+    <g>
+      {shim > 0 && Array.from({length: 14}, (_, i) => { const rr = rng(hash(`sh${spec.seed}${i}`)); const sx = 120 + rr() * (W - 240), sy = H * (0.6 + rr() * 0.33), ph = rr() * 6.28, ln = 32 + rr() * 30; return <path key={i} d={`M${sx - ln / 2} ${sy} h${ln}`} stroke="#f4f0dc" strokeWidth="2" strokeLinecap="round" opacity={(0.05 + 0.1 * shim) * (0.6 + 0.4 * Math.sin(f / 47 + ph))} />; })}
+      {glows.map((g, i) => <ellipse key={i} cx={g.x} cy={g.y} rx={g.rx} ry={g.ry} fill="#f6b04a" opacity={0.1 + 0.045 * Math.sin(f / 21 + g.ph)} style={{mixBlendMode: 'screen'}} />)}
+      {ffOn && Array.from({length: 14}, (_, i) => { const rr = rng(hash(`ff${spec.seed}${i}`)); const bx = rr() * W, by = 470 + rr() * 400; const x = bx + Math.sin(f / 60 + i * 3) * 36, y = by + Math.cos(f / 70 + i) * 26; return <circle key={i} cx={x} cy={y} r="2.8" fill="#f6e58a" opacity={0.25 + 0.5 * Math.max(0, Math.sin(f / 30 + i * 2))} style={{mixBlendMode: 'screen'}} />; })}
+      {birdsOn && <Birds f={f} n={7} seed={`${spec.seed}amb`} />}
+      {(fx.includes('mist') || spec.sky !== 'day') && Array.from({length: wispN}, (_, i) => <ellipse key={i} cx={((f * (0.22 + i * 0.09) + i * 760 + (hash(`${spec.seed}w${i}`) % 500)) % (W + 1200)) - 500} cy={600 + i * 70} rx="560" ry="58" fill="url(#mist)" opacity={wispOp} />)}
+    </g>
+  );
+};
 
 // ---------- sky, land, frames, fx ----------
 const Sky = ({c, spec, f}: any) => {
@@ -766,7 +1036,7 @@ const Fx = ({c, spec, f}: any) => {
   return (
     <g>
       {fx.includes('mist') && [0, 1, 2].map((i) => <ellipse key={i} cx={((f * (0.3 + i * 0.12) + i * 700) % (W + 1200)) - 500} cy={560 + i * 90} rx="640" ry="70" fill="url(#mist)" />)}
-      {fx.includes('smoke') && Array.from({length: 16}, (_, i) => { const t = ((f / 4 + i * 11) % 180) / 180, bx = (spec.smokeX ?? 0.5) * W; return <circle key={i} cx={bx + Math.sin(t * 6 + i) * 30 + t * 60} cy={620 - t * 520} r={14 + t * 70} fill="#d9d4c8" opacity={0.3 * (1 - t)} />; })}
+      {fx.includes('smoke') && Array.from({length: 16}, (_, i) => { const t = ((f / 4 + i * 11) % 180) / 180, bx = (spec.smokeX ?? 0.5) * W; return <circle key={i} cx={bx + Math.sin(t * 6 + i) * 30 + t * 60} cy={620 - t * 520} r={14 + t * 70} fill="url(#mist)" opacity={0.55 * (1 - t)} />; })}
       {fx.includes('rain') && Array.from({length: 160}, (_, i) => { const x = (r() * (W + 200) + f * 5) % (W + 200) - 60, y = (r() * H + f * 22) % (H + 80) - 40; return <path key={i} d={`M${x} ${y} l-6 28`} stroke="#dfe8ee" strokeWidth="1.6" opacity="0.55" />; })}
       {fx.includes('snow') && Array.from({length: 120}, (_, i) => { const x = (r() * W + Math.sin(f / 50 + i) * 20 + f * 0.6) % W, y = (r() * H + f * (1.2 + r())) % H; return <circle key={i} cx={x} cy={y} r={1.8 + r() * 2.4} fill="#fff" opacity="0.8" />; })}
       {fx.includes('fireflies') && Array.from({length: 26}, (_, i) => { const x = r() * W + Math.sin(f / 60 + i * 3) * 40, y = 480 + r() * 420 + Math.cos(f / 70 + i) * 30; return <circle key={i} cx={x} cy={y} r="3" fill="#f6e58a" opacity={0.3 + 0.6 * Math.max(0, Math.sin(f / 30 + i * 2))} style={{mixBlendMode: 'screen'}} />; })}
@@ -774,10 +1044,11 @@ const Fx = ({c, spec, f}: any) => {
       {fx.includes('rays') && <g style={{mixBlendMode: 'screen'}}>{[0, 1, 2, 3].map((i) => { const ox = W * 0.76 + i * 30, spread = 130 + i * 60; return <path key={i} d={`M${ox} -20 L${ox + spread} -20 L${ox - 260 - i * 90} ${H * 0.92} L${ox - 330 - i * 90} ${H * 0.92}Z`} fill="#fff3c4" opacity={0.05 + 0.014 * i + 0.01 * Math.sin(f / 90 + i)} />; })}</g>}
       {fx.includes('bolts') && <g>{[0, 1].map((i) => { const bx = 260 + r() * (W - 520), op = 0.05 + 0.11 * Math.max(0, Math.sin(f / 160 + i * 2.4)); let d = `M${bx} 40`, yy = 40, xx = bx; for (let k = 0; k < 5; k++) { yy += 52 + r() * 30; xx += (r() - 0.5) * 90; d += ` L${xx.toFixed(0)} ${yy.toFixed(0)}`; } return <path key={i} d={d} fill="none" stroke="#eef2ff" strokeWidth="3.2" opacity={op} strokeLinejoin="round" />; })}</g>}
       {fx.includes('sparks') && Array.from({length: 22}, (_, i) => { const sx = (r() * W + Math.sin(f / 70 + i * 2) * 16 + W) % W, sy = 940 - ((r() * 560 + f * (0.35 + r() * 0.3)) % 580); return <circle key={i} cx={sx} cy={sy} r={1.8 + r() * 1.8} fill={i % 3 ? '#f6b04a' : '#fbe58a'} opacity={0.35 + 0.4 * Math.max(0, Math.sin(f / 34 + i * 3))} style={{mixBlendMode: 'screen'}} />; })}
-      {fx.includes('steam') && Array.from({length: 12}, (_, i) => { const t = ((f / 4 + i * 15) % 150) / 150, bx = (spec.smokeX ?? 0.5) * W; return <circle key={i} cx={bx + Math.sin(t * 5 + i) * 22 + t * 30} cy={800 - t * 300} r={12 + t * 46} fill="#f2efe8" opacity={0.2 * (1 - t)} />; })}
+      {fx.includes('steam') && Array.from({length: 12}, (_, i) => { const t = ((f / 4 + i * 15) % 150) / 150, bx = (spec.smokeX ?? 0.5) * W; return <circle key={i} cx={bx + Math.sin(t * 5 + i) * 22 + t * 30} cy={800 - t * 300} r={12 + t * 46} fill="url(#mist)" opacity={0.4 * (1 - t)} />; })}
       {fx.includes('petals') && Array.from({length: 36}, (_, i) => { const px = (r() * W + f * 0.5 + Math.sin(f / 60 + i) * 22) % W, py = (r() * H + f * (0.7 + r() * 0.5)) % H; return <ellipse key={i} cx={px} cy={py} rx={3.4 + r() * 2} ry={2.2 + r() * 1.4} fill="#eec9c4" opacity="0.75" transform={`rotate(${f / 3 + i * 40} ${px} ${py})`} />; })}
       {fx.includes('lights') && <g>{[0, 1, 2].map((j) => <g key={j}>{Array.from({length: 16}, (_, i) => { const lx = 120 + i * 112, ly = 250 + j * 130 + Math.sin((i / 15) * Math.PI) * 26, tw = 0.55 + 0.35 * Math.sin(f / 34 + i + j * 3); return <g key={i}><circle cx={lx} cy={ly} r="9" fill="#f6c86a" opacity={0.13 + 0.05 * Math.sin(f / 34 + i + j * 3)} style={{mixBlendMode: 'screen'}} /><circle cx={lx} cy={ly} r="3" fill="#f6c86a" opacity={tw} /></g>; })}</g>)}</g>}
       {fx.includes('aurora') && <g style={{mixBlendMode: 'screen'}}>{[0, 1, 2].map((j) => { const yb = 70 + j * 95; const top = Array.from({length: 25}, (_, i) => { const px = -100 + i * 88; return `${i ? 'L' : 'M'}${px} ${(yb + Math.sin(px / 300 + f / 120 + j * 1.7) * 34).toFixed(0)}`; }).join(' '); const bot = Array.from({length: 25}, (_, k) => { const i = 24 - k, px = -100 + i * 88; return `L${px} ${(yb + 165 + Math.sin(px / 340 + f / 140 + j * 1.7) * 24).toFixed(0)}`; }).join(' '); return <path key={j} d={top + ' ' + bot + ' Z'} fill={j % 2 ? '#4ad8c2' : '#7fe8b0'} opacity={0.09 + 0.03 * Math.sin(f / 70 + j * 2)} />; })}</g>}
+      {fx.includes('motes') && Array.from({length: 42}, (_, i) => { const x = (r() * W + Math.sin(f / 90 + i) * 30 + W) % W, y = (r() * H + f * (0.22 + r() * 0.18)) % H; return <circle key={i} cx={x} cy={y} r={1.7 + r() * 2} fill="#eac97c" opacity={0.3 + 0.22 * Math.sin(f / 48 + i * 2)} style={{mixBlendMode: 'screen'}} />; })}
       {fx.includes('ashfall') && Array.from({length: 80}, (_, i) => { const x = (r() * W + Math.sin(f / 80 + i) * 26 + W) % W, y = (r() * H + f * (0.45 + r() * 0.3)) % H; return <circle key={i} cx={x} cy={y} r={1.6 + r() * 2.2} fill="#c9c2b4" opacity={0.34 + 0.2 * Math.sin(f / 44 + i * 2)} />; })}
     </g>
   );
@@ -792,7 +1063,11 @@ export const Scene: React.FC<{spec: Spec; frame: number; fps: number; p: number}
   const fx = Math.min(Math.max(v.x ?? 0.5, 0.5 / z + 0.01), 1 - 0.5 / z - 0.01), fy = Math.min(Math.max(v.y ?? 0.5, 0.5 / z + 0.01), 1 - 0.5 / z - 0.01);
   const px = cam === 'left' ? (0.5 - p) * 30 : cam === 'right' ? (p - 0.5) * 30 : 0, py = cam === 'up' ? (0.5 - p) * 20 : 0;
   const things = (s.things ?? []).map((t: any[], i: number) => ({k: t[0], x: t[1] * W, y: t[2] * H, s: t[3] ?? 1, n: t[4], i})).sort((a: any, b: any) => a.y - b.y);
-  const draw = (a: any[]) => a.map((t) => { const Th = t.k === 'group' ? Group : THINGS[t.k]; return Th ? <Th key={t.i} x={t.x} y={t.y} s={t.s} n={t.n} c={c} i={t.i} /> : null; });
+  const draw = (a: any[]) => a.map((t) => { const PP = PROP_PLATES[t.k]; if (PP) return <PaintedThing key={t.i} t={t} pp={PP} c={c} sky={s.sky} />; const Th = t.k === 'group' ? Group : THINGS[t.k]; return Th ? <Th key={t.i} x={t.x} y={t.y} s={t.s} n={t.n} c={c} i={t.i} /> : null; });
+  const plate = BG_PLATES[`${s.land}|${s.sky}`];
+  const fgPlate = FG_PLATES[s.land];
+  const kbDir = hash(`kb${s.seed}`) % 2 ? 1 : -1;
+  const layerT = (rate: number, kbS = 0, kbX = 0) => `translate(${W / 2} ${H / 2}) scale(${1 + (z - 1) * rate + kbS}) translate(${-(fx * W + px * rate + kbX)} ${-(fy * H + py * rate)})`;
   return (
     <svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} style={{display: 'block', background: pal.b}}>
       <defs>
@@ -800,19 +1075,26 @@ export const Scene: React.FC<{spec: Spec; frame: number; fps: number; p: number}
         <radialGradient id="mist"><stop offset="0" stopColor="#f6f1e4" stopOpacity="0.5" /><stop offset="1" stopColor="#f6f1e4" stopOpacity="0" /></radialGradient>
         <radialGradient id="glow"><stop offset="0" stopColor={pal.sun} stopOpacity="0.55" /><stop offset="1" stopColor={pal.sun} stopOpacity="0" /></radialGradient>
         <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="9" stroke={INK} strokeWidth="1.5" /></pattern>
+        <filter id="gr-dawn" colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values="1.02 0 0 0 0.01 0 0.95 0 0 0.01 0 0 0.88 0 0.03 0 0 0 1 0" /></filter>
+        <filter id="gr-dusk" colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values="0.82 0 0 0 0.01 0 0.68 0 0 0.02 0 0 0.82 0 0.05 0 0 0 1 0" /></filter>
+        <filter id="gr-night" colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values="0.56 0 0 0 0.01 0 0.6 0 0 0.03 0 0 0.85 0 0.06 0 0 0 1 0" /></filter>
+        <filter id="gr-overcast" colorInterpolationFilters="sRGB"><feColorMatrix type="matrix" values="0.83 0.1 0.04 0 0.02 0.07 0.84 0.07 0 0.01 0.04 0.1 0.85 0 0.02 0 0 0 1 0" /></filter>
         <filter id="rough" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency="0.014 0.018" numOctaves="2" seed={boil + 1} result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" /></filter>
       </defs>
-      <g transform={`translate(${W / 2} ${H / 2}) scale(${z}) translate(${-(fx * W + px)} ${-(fy * H + py)})`}>
+      {plate && <g transform={layerT(0.45, 0.028 * p, (p - 0.5) * 30 * kbDir)}><image href={plate} x={-120} y={-90} width={W + 240} height={H + 180} preserveAspectRatio="xMidYMid slice" /></g>}
+      <g transform={layerT(1)}>
         <g filter="url(#rough)">
-          <Sky c={c} spec={s} f={frame} />
-          <Land c={c} spec={s} f={frame} />
+          {!plate && <Sky c={c} spec={s} f={frame} />}
+          {!plate && <Land c={c} spec={s} f={frame} />}
           {draw(things.filter((t: any) => !s.frame || t.y < H * 0.7))}
           {s.frame && <Frame kind={s.frame} c={c} f={frame} />}
           {draw(things.filter((t: any) => s.frame && t.y >= H * 0.7))}
         </g>
+        <Ambient c={c} spec={s} f={frame} />
         <Fx c={c} spec={s} f={frame} />
       </g>
-      {pal.night && <rect width={W} height={H} fill="#0c1230" opacity="0.18" />}
+      {fgPlate && <g transform={layerT(1.5, 0, Math.sin(frame / 150) * 5)} opacity={FG_OPACITY[s.sky] ?? 0.7}><image href={fgPlate} x={-150} y={-70} width={W + 300} height={H + 140} preserveAspectRatio="xMidYMax slice" /></g>}
+      {pal.night && !plate && <rect width={W} height={H} fill="#0c1230" opacity="0.18" />}
     </svg>
   );
 };
