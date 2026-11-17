@@ -1,54 +1,40 @@
 // Hand-drawn scene engine. Pure function of (spec, frame): no randomness, no clock.
 // Look: wobbling ink lines (SVG displacement, new seed 6x/second = "boil"), flat watercolour fills, grain.
+import bg_roman_street_day from './plates/bg_roman_street_day.jpg';
+import bg_roman_countryside_dusk from './plates/bg_roman_countryside_dusk.jpg';
+import bg_river_dawn from './plates/bg_river_dawn.jpg';
+import bg_river_day from './plates/bg_river_day.jpg';
+import bg_river_dusk from './plates/bg_river_dusk.jpg';
+import bg_river_night from './plates/bg_river_night.jpg';
+import bg_forest_dawn from './plates/bg_forest_dawn.jpg';
+import bg_forest_dusk from './plates/bg_forest_dusk.jpg';
+import bg_forest_night from './plates/bg_forest_night.jpg';
+import bg_harbour_day from './plates/bg_harbour_day.jpg';
+import bg_harbour_dusk from './plates/bg_harbour_dusk.jpg';
+import bg_harbour_night from './plates/bg_harbour_night.jpg';
+import bg_london_street_night from './plates/bg_london_street_night.jpg';
+import bg_london_fog_dusk from './plates/bg_london_fog_dusk.jpg';
+import bg_port_town_day from './plates/bg_port_town_day.jpg';
+import bg_castletown_night from './plates/bg_castletown_night.jpg';
+import bg_marketsquare_dusk from './plates/bg_marketsquare_dusk.jpg';
+import bg_monastery_dawn from './plates/bg_monastery_dawn.jpg';
+import bg_int_tavern from './plates/bg_int_tavern.jpg';
+import bg_int_library from './plates/bg_int_library.jpg';
+import bg_int_greathall from './plates/bg_int_greathall.jpg';
+import bg_int_workshop from './plates/bg_int_workshop.jpg';
+import bg_int_kitchen from './plates/bg_int_kitchen.jpg';
+import bg_int_cabin from './plates/bg_int_cabin.jpg';
+import bg_coast_dawn from './plates/bg_coast_dawn.jpg';
+import bg_coast_day from './plates/bg_coast_day.jpg';
+import bg_coast_dusk from './plates/bg_coast_dusk.jpg';
+import bg_coast_night from './plates/bg_coast_night.jpg';
+import bg_sea_storm from './plates/bg_sea_storm.jpg';
+import bg_hills_day from './plates/bg_hills_day.jpg';
+import bg_moor_dusk from './plates/bg_moor_dusk.jpg';
+import bg_moor_night from './plates/bg_moor_night.jpg';
+import bg_garden_day from './plates/bg_garden_day.jpg';
+import bg_garden_night from './plates/bg_garden_night.jpg';
 import React from 'react';
-import bg_fields_dawn from './plates/bg_fields_dawn.jpg';
-import bg_fields_day from './plates/bg_fields_day.jpg';
-import bg_fields_dusk from './plates/bg_fields_dusk.jpg';
-import bg_forest_day from './plates/bg_forest_day.jpg';
-import bg_grove_day from './plates/bg_grove_day.jpg';
-import bg_meadow_dawn from './plates/bg_meadow_dawn.jpg';
-import bg_meadow_day from './plates/bg_meadow_day.jpg';
-import bg_meadow_dusk from './plates/bg_meadow_dusk.jpg';
-import bg_meadow_overcast from './plates/bg_meadow_overcast.jpg';
-import bg_plain_day from './plates/bg_plain_day.jpg';
-import bg_plain_dusk from './plates/bg_plain_dusk.jpg';
-import bg_plain_overcast from './plates/bg_plain_overcast.jpg';
-import bg_snow_dawn from './plates/bg_snow_dawn.jpg';
-import bg_snow_day from './plates/bg_snow_day.jpg';
-import bg_snow_night from './plates/bg_snow_night.jpg';
-import bg_valley_day from './plates/bg_valley_day.jpg';
-import bg_village_dawn from './plates/bg_village_dawn.jpg';
-import bg_village_day from './plates/bg_village_day.jpg';
-import bg_village_dusk from './plates/bg_village_dusk.jpg';
-import bg_village_night from './plates/bg_village_night.jpg';
-import bg_village_overcast from './plates/bg_village_overcast.jpg';
-import prop_beehive from './plates/prop_beehive.png';
-import prop_bench from './plates/prop_bench.png';
-import prop_boat from './plates/prop_boat.png';
-import prop_campfire from './plates/prop_campfire.png';
-import prop_cart from './plates/prop_cart.png';
-import prop_church from './plates/prop_church.png';
-import prop_cottage from './plates/prop_cottage.png';
-import prop_gate from './plates/prop_gate.png';
-import prop_graves from './plates/prop_graves.png';
-import prop_haystack from './plates/prop_haystack.png';
-import prop_herd from './plates/prop_herd.png';
-import prop_lantern from './plates/prop_lantern.png';
-import prop_marketcross from './plates/prop_marketcross.png';
-import prop_mill from './plates/prop_mill.png';
-import prop_plough from './plates/prop_plough.png';
-import prop_rocks from './plates/prop_rocks.png';
-import prop_stall from './plates/prop_stall.png';
-import prop_tree from './plates/prop_tree.png';
-import prop_well from './plates/prop_well.png';
-import fg_fields from './plates/fg_fields.png';
-import fg_forest from './plates/fg_forest.png';
-import fg_grove from './plates/fg_grove.png';
-import fg_meadow from './plates/fg_meadow.png';
-import fg_plain from './plates/fg_plain.png';
-import fg_snow from './plates/fg_snow.png';
-import fg_valley from './plates/fg_valley.png';
-import fg_village from './plates/fg_village.png';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
 const INK = '#3a2e28';
@@ -879,32 +865,12 @@ const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, 
 // group, lying) stay code-drawn and animated — they are the moving element.
 // A land/sky or thing with no plate falls back to the code-drawn original, so
 // older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
-const BG_PLATES: Record<string, any> = {'fields|dawn': bg_fields_dawn, 'fields|day': bg_fields_day, 'fields|dusk': bg_fields_dusk, 'forest|day': bg_forest_day, 'grove|day': bg_grove_day, 'meadow|dawn': bg_meadow_dawn, 'meadow|day': bg_meadow_day, 'meadow|dusk': bg_meadow_dusk, 'meadow|overcast': bg_meadow_overcast, 'plain|day': bg_plain_day, 'plain|dusk': bg_plain_dusk, 'plain|overcast': bg_plain_overcast, 'snow|dawn': bg_snow_dawn, 'snow|day': bg_snow_day, 'snow|night': bg_snow_night, 'valley|day': bg_valley_day, 'village|dawn': bg_village_dawn, 'village|day': bg_village_day, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night, 'village|overcast': bg_village_overcast};
-const FG_PLATES: Record<string, any> = {fields: fg_fields, forest: fg_forest, grove: fg_grove, meadow: fg_meadow, plain: fg_plain, snow: fg_snow, valley: fg_valley, village: fg_village};
+const BG_PLATES: Record<string, any> = {'roman|day': bg_roman_street_day, 'roman|dusk': bg_roman_countryside_dusk, 'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'forest|dawn': bg_forest_dawn, 'forest|dusk': bg_forest_dusk, 'forest|night': bg_forest_night, 'harbour|day': bg_harbour_day, 'harbour|dusk': bg_harbour_dusk, 'harbour|night': bg_harbour_night, 'city|night': bg_london_street_night, 'city|dusk': bg_london_fog_dusk, 'city|day': bg_port_town_day, 'castletown|night': bg_castletown_night, 'market|dusk': bg_marketsquare_dusk, 'monastery|dawn': bg_monastery_dawn, 'tavern|night': bg_int_tavern, 'library|night': bg_int_library, 'hall|dusk': bg_int_greathall, 'workshop|day': bg_int_workshop, 'kitchen|dusk': bg_int_kitchen, 'cabin|night': bg_int_cabin, 'coast|dawn': bg_coast_dawn, 'coast|day': bg_coast_day, 'coast|dusk': bg_coast_dusk, 'coast|night': bg_coast_night, 'coast|storm': bg_sea_storm, 'hills|day': bg_hills_day, 'moor|dusk': bg_moor_dusk, 'moor|night': bg_moor_night, 'garden|day': bg_garden_day, 'garden|night': bg_garden_night};
+const FG_PLATES: Record<string, any> = {}; // foreground strips OFF (Bruce, 2026-11-16)
 // h = height in scene units at scale 1 (matched to the drawn originals);
 // aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
 // glow = [x, y] fractions of warm windows/flames for the Ambient flicker.
-const PROP_PLATES: Record<string, any> = {
-  beehive: {img: prop_beehive, h: 78, aspect: 1.358, ax: 0.493},
-  bench: {img: prop_bench, h: 86, aspect: 1.636, ax: 0.494},
-  boat: {img: prop_boat, h: 55, aspect: 3.224, ax: 0.503, noShadow: true},
-  campfire: {img: prop_campfire, h: 46, aspect: 1.204, ax: 0.505, glow: [[0.5, 0.5]]},
-  cart: {img: prop_cart, h: 96, aspect: 1.16, ax: 0.505},
-  church: {img: prop_church, h: 342, aspect: 0.719, ax: 0.483, glow: [[0.68, 0.68], [0.86, 0.68]]},
-  cottage: {img: prop_cottage, h: 160, aspect: 0.994, ax: 0.501, glow: [[0.18, 0.72], [0.83, 0.72]]},
-  gate: {img: prop_gate, h: 100, aspect: 2.139, ax: 0.502},
-  graves: {img: prop_graves, h: 90, aspect: 1.942, ax: 0.515},
-  haystack: {img: prop_haystack, h: 172, aspect: 1.003, ax: 0.492},
-  herd: {img: prop_herd, h: 58, aspect: 1.797, ax: 0.505},
-  lantern: {img: prop_lantern, h: 95, aspect: 0.351, ax: 0.339, glow: [[0.5, 0.2]]},
-  marketcross: {img: prop_marketcross, h: 198, aspect: 0.703, ax: 0.5},
-  mill: {img: prop_mill, h: 200, aspect: 0.981, ax: 0.496, glow: [[0.3, 0.42]]},
-  plough: {img: prop_plough, h: 95, aspect: 2.278, ax: 0.49},
-  rocks: {img: prop_rocks, h: 62, aspect: 1.654, ax: 0.485},
-  stall: {img: prop_stall, h: 175, aspect: 1.101, ax: 0.501},
-  tree: {img: prop_tree, h: 195, aspect: 1.015, ax: 0.495, sway: 0.5},
-  well: {img: prop_well, h: 150, aspect: 0.742, ax: 0.505}
-};
+const PROP_PLATES: Record<string, any> = {}; // props by exception: library bg plates are complete paintings; no prop plates in this pack (drawn things remain as fallback)
 // Per-sky grading for prop plates (bg plates are painted per-sky already).
 const GRADES: Record<string, string> = {dawn: 'gr-dawn', dusk: 'gr-dusk', night: 'gr-night', overcast: 'gr-overcast'};
 const FG_OPACITY: Record<string, number> = {dawn: 0.66, day: 0.5, dusk: 0.85, night: 0.95, overcast: 0.6};
@@ -924,7 +890,7 @@ const PaintedThing = ({t, pp, c, sky}: any) => {
 // lands, bonus fireflies at dusk/night, a small dawn/day bird party, and
 // extra soft mist wisps. All choices derive from hash(spec.seed) via rng(),
 // drawn in a fixed order, so every render of a shot is identical.
-const AMBIENT_WATER = ['meadow', 'valley', 'lake'];
+const AMBIENT_WATER = ['meadow', 'valley', 'lake', 'river', 'harbour'];
 const Ambient = ({c, spec, f}: any) => {
   const fx: string[] = spec.fx || [];
   const r = rng(hash(`amb${spec.seed}`));
