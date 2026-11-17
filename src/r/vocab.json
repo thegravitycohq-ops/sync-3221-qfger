@@ -43,7 +43,11 @@
     "castletown",
     "hills",
     "moor",
-    "garden"
+    "garden",
+    "snowforest",
+    "frozenlake",
+    "cottage",
+    "cell"
   ],
   "frame": [
     "cave",

@@ -1,39 +1,27 @@
 // Hand-drawn scene engine. Pure function of (spec, frame): no randomness, no clock.
 // Look: wobbling ink lines (SVG displacement, new seed 6x/second = "boil"), flat watercolour fills, grain.
-import bg_roman_street_day from './plates/bg_roman_street_day.jpg';
-import bg_roman_countryside_dusk from './plates/bg_roman_countryside_dusk.jpg';
-import bg_river_dawn from './plates/bg_river_dawn.jpg';
-import bg_river_day from './plates/bg_river_day.jpg';
-import bg_river_dusk from './plates/bg_river_dusk.jpg';
-import bg_river_night from './plates/bg_river_night.jpg';
-import bg_forest_dawn from './plates/bg_forest_dawn.jpg';
-import bg_forest_dusk from './plates/bg_forest_dusk.jpg';
-import bg_forest_night from './plates/bg_forest_night.jpg';
-import bg_harbour_day from './plates/bg_harbour_day.jpg';
-import bg_harbour_dusk from './plates/bg_harbour_dusk.jpg';
-import bg_harbour_night from './plates/bg_harbour_night.jpg';
-import bg_london_street_night from './plates/bg_london_street_night.jpg';
-import bg_london_fog_dusk from './plates/bg_london_fog_dusk.jpg';
-import bg_port_town_day from './plates/bg_port_town_day.jpg';
 import bg_castletown_night from './plates/bg_castletown_night.jpg';
-import bg_marketsquare_dusk from './plates/bg_marketsquare_dusk.jpg';
-import bg_monastery_dawn from './plates/bg_monastery_dawn.jpg';
+import bg_snow_dawn from './plates/bg_snow_dawn.jpg';
+import bg_snow_day from './plates/bg_snow_day.jpg';
+import bg_snow_night from './plates/bg_snow_night.jpg';
+import bg_village_dawn from './plates/bg_village_dawn.jpg';
+import bg_village_night from './plates/bg_village_night.jpg';
+import bg_village_overcast from './plates/bg_village_overcast.jpg';
+import bg_int_greathall from './plates/bg_int_greathall.jpg';
+import bg_int_cottage from './plates/bg_int_cottage.jpg';
+import bg_int_kitchen from './plates/bg_int_kitchen.jpg';
+import bg_int_cell from './plates/bg_int_cell.jpg';
 import bg_int_tavern from './plates/bg_int_tavern.jpg';
 import bg_int_library from './plates/bg_int_library.jpg';
-import bg_int_greathall from './plates/bg_int_greathall.jpg';
 import bg_int_workshop from './plates/bg_int_workshop.jpg';
-import bg_int_kitchen from './plates/bg_int_kitchen.jpg';
-import bg_int_cabin from './plates/bg_int_cabin.jpg';
-import bg_coast_dawn from './plates/bg_coast_dawn.jpg';
-import bg_coast_day from './plates/bg_coast_day.jpg';
-import bg_coast_dusk from './plates/bg_coast_dusk.jpg';
-import bg_coast_night from './plates/bg_coast_night.jpg';
-import bg_sea_storm from './plates/bg_sea_storm.jpg';
-import bg_hills_day from './plates/bg_hills_day.jpg';
-import bg_moor_dusk from './plates/bg_moor_dusk.jpg';
-import bg_moor_night from './plates/bg_moor_night.jpg';
-import bg_garden_day from './plates/bg_garden_day.jpg';
-import bg_garden_night from './plates/bg_garden_night.jpg';
+import bg_monastery_dawn from './plates/bg_monastery_dawn.jpg';
+import bg_frozenlake_night from './plates/bg_frozenlake_night.jpg';
+import bg_mountains_dawn from './plates/bg_mountains_dawn.jpg';
+import bg_mountains_night from './plates/bg_mountains_night.jpg';
+import bg_forest_night from './plates/bg_forest_night.jpg';
+import bg_plain_overcast from './plates/bg_plain_overcast.jpg';
+import bg_river_night from './plates/bg_river_night.jpg';
+import bg_snowforest_night from './plates/bg_snowforest_night.jpg';
 import React from 'react';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
@@ -865,7 +853,7 @@ const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, 
 // group, lying) stay code-drawn and animated — they are the moving element.
 // A land/sky or thing with no plate falls back to the code-drawn original, so
 // older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
-const BG_PLATES: Record<string, any> = {'roman|day': bg_roman_street_day, 'roman|dusk': bg_roman_countryside_dusk, 'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'forest|dawn': bg_forest_dawn, 'forest|dusk': bg_forest_dusk, 'forest|night': bg_forest_night, 'harbour|day': bg_harbour_day, 'harbour|dusk': bg_harbour_dusk, 'harbour|night': bg_harbour_night, 'city|night': bg_london_street_night, 'city|dusk': bg_london_fog_dusk, 'city|day': bg_port_town_day, 'castletown|night': bg_castletown_night, 'market|dusk': bg_marketsquare_dusk, 'monastery|dawn': bg_monastery_dawn, 'tavern|night': bg_int_tavern, 'library|night': bg_int_library, 'hall|dusk': bg_int_greathall, 'workshop|day': bg_int_workshop, 'kitchen|dusk': bg_int_kitchen, 'cabin|night': bg_int_cabin, 'coast|dawn': bg_coast_dawn, 'coast|day': bg_coast_day, 'coast|dusk': bg_coast_dusk, 'coast|night': bg_coast_night, 'coast|storm': bg_sea_storm, 'hills|day': bg_hills_day, 'moor|dusk': bg_moor_dusk, 'moor|night': bg_moor_night, 'garden|day': bg_garden_day, 'garden|night': bg_garden_night};
+const BG_PLATES: Record<string, any> = {'castletown|night': bg_castletown_night, 'snow|dawn': bg_snow_dawn, 'snow|day': bg_snow_day, 'snow|night': bg_snow_night, 'village|dawn': bg_village_dawn, 'village|night': bg_village_night, 'village|overcast': bg_village_overcast, 'hall|night': bg_int_greathall, 'cottage|night': bg_int_cottage, 'kitchen|dawn': bg_int_kitchen, 'cell|dawn': bg_int_cell, 'tavern|night': bg_int_tavern, 'library|dusk': bg_int_library, 'workshop|dusk': bg_int_workshop, 'monastery|dawn': bg_monastery_dawn, 'frozenlake|night': bg_frozenlake_night, 'mountains|dawn': bg_mountains_dawn, 'mountains|night': bg_mountains_night, 'forest|night': bg_forest_night, 'plain|overcast': bg_plain_overcast, 'river|night': bg_river_night, 'snowforest|night': bg_snowforest_night};
 const FG_PLATES: Record<string, any> = {}; // foreground strips OFF (Bruce, 2026-11-16)
 // h = height in scene units at scale 1 (matched to the drawn originals);
 // aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
