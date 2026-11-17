@@ -1,6 +1,7 @@
 // Fonts ship inside the bundle (npm), so every parallel render job draws identical text.
 import '@fontsource/anton/latin-400.css';
 import '@fontsource/roboto/latin-500-italic.css';
+import '@fontsource/montserrat/latin-500.css'
 import {continueRender, delayRender} from 'remotion';
 
 const h = delayRender('fonts');
