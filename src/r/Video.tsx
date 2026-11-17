@@ -13,12 +13,13 @@ export const WM = {font: `'Cormorant Garamond', Georgia, 'Times New Roman', seri
 // 'Chapter - N' line over the chapter name set HUGE in the same gold serif
 // as the wordmark. Cards use WM.font / WM.color — there is no separate
 // card font any more.
-// Subtitles (Bruce, 2026-11-16): CREAM text, WHITE outline (no black
-// outline), NO italic, Montserrat, sitting in the MIDDLE of the frame so
-// they never collide with the bottom-centre wordmark. Montserrat loads via
-// the @fontsource import in fonts.ts; until then the stack falls back to a
-// plain sans, still cream with a white outline.
-export const SUB = {font: `'Montserrat', 'Segoe UI', Arial, sans-serif`, size: 0.054, bottom: 0.45, color: '#f4ecd8', stroke: 0.007};
+// Subtitles (Bruce, 2026-11-17, revised after the London smoke test — the
+// white outline looked bad): CREAM text only, NO outline at all, NO italic,
+// Montserrat, with just a slight soft black shadow behind the text to keep
+// it readable. Sits in the MIDDLE of the frame so it never collides with
+// the bottom-centre wordmark. Montserrat loads via the @fontsource import
+// in fonts.ts; until then the stack falls back to a plain sans.
+export const SUB = {font: `'Montserrat', 'Segoe UI', Arial, sans-serif`, size: 0.054, bottom: 0.45, color: '#f4ecd8'};
 
 // Chapter cards (added 2026-11-14): plan.cards is an OPTIONAL list of silent windows emitted by
 // prep.py at chapter boundaries. During a window no narration plays; the chapter's title is drawn
@@ -55,7 +56,7 @@ export const Video: React.FC<Plan> = (plan) => {
         <div style={{font: `600 ${height * 0.115}px/1.15 ${WM.font}`, letterSpacing: '0.05em', whiteSpace: 'nowrap', color: WM.color, textShadow: '0 0 26px rgba(227,194,104,0.6), 0 3px 16px rgba(0,0,0,0.85)'}}>{plan.brand.slice(0, nameShown)}{nameShown < plan.brand.length && <span style={{opacity: 0.75}}>|</span>}</div>
         {plan.tagline ? <div style={{font: `600 ${height * 0.037}px/1.3 ${WM.font}`, letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: height * 0.028, color: WM.color, opacity: tagA, transform: `translateY(${Math.round((1 - tagA) * height * 0.014)}px)`, textShadow: '0 0 14px rgba(227,194,104,0.5), 0 2px 8px rgba(0,0,0,0.8)'}}>{plan.tagline}</div> : null}
       </div>}
-      {sub && !intro && <div style={{position: 'absolute', left: '8%', right: '8%', bottom: height * SUB.bottom, textAlign: 'center', opacity: subA, font: `500 ${height * SUB.size}px/1.2 ${SUB.font}`, color: SUB.color, WebkitTextStroke: `${height * SUB.stroke}px #ffffff`, paintOrder: 'stroke fill', textShadow: '0 0 10px rgba(244,236,216,0.35)'}}>{sub.t}</div>}
+      {sub && !intro && <div style={{position: 'absolute', left: '8%', right: '8%', bottom: height * SUB.bottom, textAlign: 'center', opacity: subA, font: `500 ${height * SUB.size}px/1.2 ${SUB.font}`, color: SUB.color, textShadow: '0 2px 8px rgba(0,0,0,0.5)'}}>{sub.t}</div>}
       {card && <div style={{position: 'absolute', left: '10%', right: '10%', top: height * 0.4, textAlign: 'center', opacity: cardA}}>
         <div style={{width: width * 0.09, height: 2, margin: '0 auto 20px', background: 'rgba(227,194,104,0.55)'}} />
         <div style={{font: `600 ${height * 0.034}px/1.2 ${WM.font}`, letterSpacing: '0.3em', color: WM.color, textShadow: '0 0 12px rgba(227,194,104,0.5), 0 2px 8px rgba(0,0,0,0.8)'}}>{`Chapter - ${cardNo}`}</div>
