@@ -47,7 +47,18 @@
     "snowforest",
     "frozenlake",
     "cottage",
-    "cell"
+    "cell",
+    "marsh",
+    "ziggurat",
+    "babylon",
+    "mudbrick",
+    "scribe",
+    "gardens",
+    "euphrates",
+    "oasis",
+    "observatory",
+    "canyon",
+    "steppe"
   ],
   "frame": [
     "cave",
