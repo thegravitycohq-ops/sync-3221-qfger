@@ -19,14 +19,12 @@ import bg_canyon_dusk from './plates/bg_canyon_dusk.jpg';
 import bg_int_library from './plates/bg_int_library.jpg';
 import bg_int_observatory from './plates/bg_int_observatory.jpg';
 import bg_reedmarsh_dawn from './plates/bg_reedmarsh_dawn.jpg';
-import bg_ziggurat_dawn from './plates/bg_ziggurat_dawn.jpg';
-import bg_ziggurat_night from './plates/bg_ziggurat_night.jpg';
-import bg_babylon_dusk from './plates/bg_babylon_dusk.jpg';
-import bg_babylon_night from './plates/bg_babylon_night.jpg';
-import bg_mudbrick_day from './plates/bg_mudbrick_day.jpg';
-import bg_int_scribe from './plates/bg_int_scribe.jpg';
-import bg_gardens_dusk from './plates/bg_gardens_dusk.jpg';
-import bg_euphrates_dusk from './plates/bg_euphrates_dusk.jpg';
+import bg_terraces_day from './plates/bg_terraces_day.jpg';
+import bg_terraces_dusk from './plates/bg_terraces_dusk.jpg';
+import bg_marketsquare_dusk from './plates/bg_marketsquare_dusk.jpg';
+import bg_castletown_night from './plates/bg_castletown_night.jpg';
+import bg_village_day from './plates/bg_village_day.jpg';
+import bg_orchard_dusk from './plates/bg_orchard_dusk.jpg';
 import React from 'react';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
@@ -858,7 +856,7 @@ const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, 
 // group, lying) stay code-drawn and animated — they are the moving element.
 // A land/sky or thing with no plate falls back to the code-drawn original, so
 // older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
-const BG_PLATES: Record<string, any> = {'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'desert|dawn': bg_desert_dawn, 'desert|dusk': bg_desert_dusk, 'desert|night': bg_desert_night, 'fields|day': bg_fields_day, 'fields|dusk': bg_fields_dusk, 'steppe|dawn': bg_steppe_dawn, 'steppe|dusk': bg_steppe_dusk, 'steppe|night': bg_steppe_night, 'mountains|dawn': bg_mountains_dawn, 'mountains|night': bg_mountains_night, 'garden|night': bg_garden_night, 'canyon|dusk': bg_canyon_dusk, 'library|dusk': bg_int_library, 'observatory|night': bg_int_observatory, 'marsh|dawn': bg_reedmarsh_dawn, 'ziggurat|dawn': bg_ziggurat_dawn, 'ziggurat|night': bg_ziggurat_night, 'babylon|dusk': bg_babylon_dusk, 'babylon|night': bg_babylon_night, 'mudbrick|day': bg_mudbrick_day, 'scribe|night': bg_int_scribe, 'gardens|dusk': bg_gardens_dusk, 'euphrates|dusk': bg_euphrates_dusk};
+const BG_PLATES: Record<string, any> = {'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'desert|dawn': bg_desert_dawn, 'desert|dusk': bg_desert_dusk, 'desert|night': bg_desert_night, 'fields|day': bg_fields_day, 'fields|dusk': bg_fields_dusk, 'steppe|dawn': bg_steppe_dawn, 'steppe|dusk': bg_steppe_dusk, 'steppe|night': bg_steppe_night, 'mountains|dawn': bg_mountains_dawn, 'mountains|night': bg_mountains_night, 'garden|night': bg_garden_night, 'canyon|dusk': bg_canyon_dusk, 'library|dusk': bg_int_library, 'observatory|night': bg_int_observatory, 'marsh|dawn': bg_reedmarsh_dawn, 'ziggurat|dawn': bg_terraces_day, 'ziggurat|night': bg_terraces_dusk, 'babylon|dusk': bg_marketsquare_dusk, 'babylon|night': bg_castletown_night, 'mudbrick|day': bg_village_day, 'scribe|night': bg_int_library, 'gardens|dusk': bg_orchard_dusk, 'euphrates|dusk': bg_river_dusk};
 const FG_PLATES: Record<string, any> = {}; // foreground strips OFF (Bruce, 2026-11-16)
 // h = height in scene units at scale 1 (matched to the drawn originals);
 // aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
