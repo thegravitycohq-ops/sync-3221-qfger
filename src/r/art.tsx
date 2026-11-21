@@ -1,31 +1,21 @@
-// Hand-drawn scene engine. Pure function of (spec, frame): no randomness, no clock.
-// Look: wobbling ink lines (SVG displacement, new seed 6x/second = "boil"), flat watercolour fills, grain.
+
 import bg_castletown_night from './plates/bg_castletown_night.jpg';
-import bg_fields_dawn from './plates/bg_fields_dawn.jpg';
 import bg_fields_day from './plates/bg_fields_day.jpg';
-import bg_fields_dusk from './plates/bg_fields_dusk.jpg';
-import bg_forest_dusk from './plates/bg_forest_dusk.jpg';
-import bg_garden_day from './plates/bg_garden_day.jpg';
+import bg_forest_night from './plates/bg_forest_night.jpg';
+import bg_hills_day from './plates/bg_hills_day.jpg';
+import bg_int_cell from './plates/bg_int_cell.jpg';
 import bg_int_cottage from './plates/bg_int_cottage.jpg';
 import bg_int_greathall from './plates/bg_int_greathall.jpg';
 import bg_int_kitchen from './plates/bg_int_kitchen.jpg';
 import bg_int_tavern from './plates/bg_int_tavern.jpg';
 import bg_int_workshop from './plates/bg_int_workshop.jpg';
-import React from 'react';
 import bg_marketsquare_dusk from './plates/bg_marketsquare_dusk.jpg';
-import bg_monastery_dawn from './plates/bg_monastery_dawn.jpg';
+import React from 'react';
 import bg_moor_night from './plates/bg_moor_night.jpg';
-import bg_mountains_dawn from './plates/bg_mountains_dawn.jpg';
-import bg_plain_day from './plates/bg_plain_day.jpg';
 import bg_plain_dusk from './plates/bg_plain_dusk.jpg';
-import bg_plain_overcast from './plates/bg_plain_overcast.jpg';
-import bg_river_day from './plates/bg_river_day.jpg';
-import bg_snow_night from './plates/bg_snow_night.jpg';
-import bg_village_dawn from './plates/bg_village_dawn.jpg';
-import bg_village_day from './plates/bg_village_day.jpg';
+import bg_river_night from './plates/bg_river_night.jpg';
 import bg_village_dusk from './plates/bg_village_dusk.jpg';
 import bg_village_night from './plates/bg_village_night.jpg';
-import bg_village_overcast from './plates/bg_village_overcast.jpg';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
 const INK = '#3a2e28';
@@ -856,7 +846,7 @@ const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, 
 // group, lying) stay code-drawn and animated — they are the moving element.
 // A land/sky or thing with no plate falls back to the code-drawn original, so
 // older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
-const BG_PLATES: Record<string, any> = {'castletown|night': bg_castletown_night, 'castletown|dusk': bg_castletown_night, 'cottage|day': bg_int_cottage, 'cottage|night': bg_int_cottage, 'fields|dawn': bg_fields_dawn, 'fields|day': bg_fields_day, 'fields|dusk': bg_fields_dusk, 'forest|dusk': bg_forest_dusk, 'garden|day': bg_garden_day, 'hall|day': bg_int_greathall, 'hall|dusk': bg_int_greathall, 'hall|night': bg_int_greathall, 'kitchen|dawn': bg_int_kitchen, 'market|dusk': bg_marketsquare_dusk, 'monastery|dawn': bg_monastery_dawn, 'mountains|dawn': bg_mountains_dawn, 'moor|night': bg_moor_night, 'plain|day': bg_plain_day, 'plain|dusk': bg_plain_dusk, 'plain|overcast': bg_plain_overcast, 'river|day': bg_river_day, 'snow|night': bg_snow_night, 'tavern|night': bg_int_tavern, 'village|dawn': bg_village_dawn, 'village|day': bg_village_day, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night, 'village|overcast': bg_village_overcast, 'workshop|day': bg_int_workshop, 'workshop|dusk': bg_int_workshop};
+const BG_PLATES: Record<string, any> = {'castletown|dusk': bg_castletown_night, 'castletown|night': bg_castletown_night, 'cell|night': bg_int_cell, 'cottage|night': bg_int_cottage, 'fields|day': bg_fields_day, 'forest|night': bg_forest_night, 'hall|night': bg_int_greathall, 'hills|day': bg_hills_day, 'kitchen|dawn': bg_int_kitchen, 'kitchen|dusk': bg_int_kitchen, 'kitchen|night': bg_int_kitchen, 'market|dusk': bg_marketsquare_dusk, 'moor|night': bg_moor_night, 'plain|dusk': bg_plain_dusk, 'river|night': bg_river_night, 'tavern|dawn': bg_int_tavern, 'tavern|day': bg_int_tavern, 'tavern|dusk': bg_int_tavern, 'tavern|night': bg_int_tavern, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night, 'workshop|dusk': bg_int_workshop};
 const FG_PLATES: Record<string, any> = {}; // foreground strips OFF (Bruce, 2026-11-16)
 // h = height in scene units at scale 1 (matched to the drawn originals);
 // aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
