@@ -1,38 +1,31 @@
-import bg_bamboo_dusk from './plates/bg_bamboo_dusk.jpg';
-import bg_china_rivertown_dusk from './plates/bg_china_rivertown_dusk.jpg';
-import bg_edo_shrine_dawn from './plates/bg_edo_shrine_dawn.jpg';
-import bg_edo_town_dusk from './plates/bg_edo_town_dusk.jpg';
+import bg_castletown_night from './plates/bg_castletown_night.jpg';
 import bg_fields_dawn from './plates/bg_fields_dawn.jpg';
-import bg_fields_dusk from './plates/bg_fields_dusk.jpg';
-import bg_forest_dawn from './plates/bg_forest_dawn.jpg';
-import bg_forest_dusk from './plates/bg_forest_dusk.jpg';
-import bg_forest_night from './plates/bg_forest_night.jpg';
+import bg_fields_day from './plates/bg_fields_day.jpg';
 import bg_garden_day from './plates/bg_garden_day.jpg';
 import bg_garden_night from './plates/bg_garden_night.jpg';
-import bg_int_bathhouse from './plates/bg_int_bathhouse.jpg';
+import bg_hills_day from './plates/bg_hills_day.jpg';
+import bg_int_cell from './plates/bg_int_cell.jpg';
 import bg_int_cottage from './plates/bg_int_cottage.jpg';
+import bg_int_greathall from './plates/bg_int_greathall.jpg';
 import bg_int_kitchen from './plates/bg_int_kitchen.jpg';
-import bg_int_library from './plates/bg_int_library.jpg';
 import bg_int_tavern from './plates/bg_int_tavern.jpg';
-import bg_lake_dusk from './plates/bg_lake_dusk.jpg';
+import bg_int_workshop from './plates/bg_int_workshop.jpg';
 import bg_marketsquare_dusk from './plates/bg_marketsquare_dusk.jpg';
-import bg_mountains_dawn from './plates/bg_mountains_dawn.jpg';
-import bg_mountains_dusk from './plates/bg_mountains_dusk.jpg';
-import bg_mountains_night from './plates/bg_mountains_night.jpg';
-import bg_orchard_day from './plates/bg_orchard_day.jpg';
-import bg_orchard_dusk from './plates/bg_orchard_dusk.jpg';
+import bg_meadow_day from './plates/bg_meadow_day.jpg';
+import bg_monastery_dawn from './plates/bg_monastery_dawn.jpg';
+import bg_moor_dusk from './plates/bg_moor_dusk.jpg';
+import bg_plain_day from './plates/bg_plain_day.jpg';
+import bg_plain_overcast from './plates/bg_plain_overcast.jpg';
+import bg_port_town_day from './plates/bg_port_town_day.jpg';
 import bg_river_dawn from './plates/bg_river_dawn.jpg';
 import bg_river_day from './plates/bg_river_day.jpg';
 import bg_river_dusk from './plates/bg_river_dusk.jpg';
 import bg_river_night from './plates/bg_river_night.jpg';
-import bg_snow_dawn from './plates/bg_snow_dawn.jpg';
-import bg_snow_night from './plates/bg_snow_night.jpg';
-import bg_terraces_day from './plates/bg_terraces_day.jpg';
-import bg_terraces_dusk from './plates/bg_terraces_dusk.jpg';
 import bg_village_dawn from './plates/bg_village_dawn.jpg';
 import bg_village_day from './plates/bg_village_day.jpg';
 import bg_village_dusk from './plates/bg_village_dusk.jpg';
 import bg_village_night from './plates/bg_village_night.jpg';
+import bg_village_overcast from './plates/bg_village_overcast.jpg';
 import React from 'react';
 export type Spec = {view?: {z?: number; x?: number; y?: number}; riverX?: number; smokeX?: number; sky?: string; land?: string; frame?: string; fx?: string[]; things?: any[]; cam?: string; seed?: string | number};
 export const W = 1920, H = 1080;
@@ -864,7 +857,7 @@ const Group = ({x, y, s = 1, n = 5, c}: any) => <g>{Array.from({length: n}, (_, 
 // group, lying) stay code-drawn and animated — they are the moving element.
 // A land/sky or thing with no plate falls back to the code-drawn original, so
 // older packs and unpainted vocab keep working unchanged. See BUILD-REPORT.md.
-const BG_PLATES: Record<string, any> = {'bamboo|dusk': bg_bamboo_dusk, 'bathhouse|night': bg_int_bathhouse, 'cottage|dawn': bg_int_cottage, 'cottage|night': bg_int_cottage, 'edo_shrine|dawn': bg_edo_shrine_dawn, 'edo_town|dusk': bg_edo_town_dusk, 'fields|dawn': bg_fields_dawn, 'fields|dusk': bg_fields_dusk, 'forest|dawn': bg_forest_dawn, 'forest|dusk': bg_forest_dusk, 'forest|night': bg_forest_night, 'garden|day': bg_garden_day, 'garden|night': bg_garden_night, 'kitchen|dawn': bg_int_kitchen, 'lake|dusk': bg_lake_dusk, 'library|dusk': bg_int_library, 'market|dusk': bg_marketsquare_dusk, 'mountains|dawn': bg_mountains_dawn, 'mountains|dusk': bg_mountains_dusk, 'mountains|night': bg_mountains_night, 'orchard|day': bg_orchard_day, 'orchard|dusk': bg_orchard_dusk, 'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'rivertown|dusk': bg_china_rivertown_dusk, 'snow|dawn': bg_snow_dawn, 'snow|night': bg_snow_night, 'tavern|dusk': bg_int_tavern, 'tavern|night': bg_int_tavern, 'terraces|day': bg_terraces_day, 'terraces|dusk': bg_terraces_dusk, 'village|dawn': bg_village_dawn, 'village|day': bg_village_day, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night};
+const BG_PLATES: Record<string, any> = {'village|dawn': bg_village_dawn, 'village|day': bg_village_day, 'village|dusk': bg_village_dusk, 'village|night': bg_village_night, 'village|overcast': bg_village_overcast, 'fields|dawn': bg_fields_dawn, 'fields|day': bg_fields_day, 'plain|day': bg_plain_day, 'plain|overcast': bg_plain_overcast, 'river|dawn': bg_river_dawn, 'river|day': bg_river_day, 'river|dusk': bg_river_dusk, 'river|night': bg_river_night, 'castletown|dusk': bg_castletown_night, 'castletown|night': bg_castletown_night, 'porttown|day': bg_port_town_day, 'market|dusk': bg_marketsquare_dusk, 'tavern|dawn': bg_int_tavern, 'tavern|day': bg_int_tavern, 'tavern|dusk': bg_int_tavern, 'tavern|night': bg_int_tavern, 'cottage|dawn': bg_int_cottage, 'cottage|day': bg_int_cottage, 'cottage|dusk': bg_int_cottage, 'cottage|night': bg_int_cottage, 'cottage|overcast': bg_int_cottage, 'cell|night': bg_int_cell, 'kitchen|dawn': bg_int_kitchen, 'kitchen|dusk': bg_int_kitchen, 'kitchen|night': bg_int_kitchen, 'workshop|day': bg_int_workshop, 'workshop|dusk': bg_int_workshop, 'hall|day': bg_int_greathall, 'hall|dusk': bg_int_greathall, 'hall|night': bg_int_greathall, 'monastery|dawn': bg_monastery_dawn, 'monastery|day': bg_monastery_dawn, 'monastery|dusk': bg_monastery_dawn, 'garden|day': bg_garden_day, 'garden|dusk': bg_garden_night, 'hills|day': bg_hills_day, 'moor|dusk': bg_moor_dusk, 'moor|overcast': bg_moor_dusk, 'meadow|day': bg_meadow_day};
 const FG_PLATES: Record<string, any> = {}; // foreground strips OFF (Bruce, 2026-11-16)
 // h = height in scene units at scale 1 (matched to the drawn originals);
 // aspect/ax come from the keyed PNG (ax = alpha-centroid anchor fraction);
