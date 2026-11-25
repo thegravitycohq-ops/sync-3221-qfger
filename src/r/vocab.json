@@ -66,7 +66,9 @@
     "rivertown",
     "terraces",
     "orchard",
-    "porttown"
+    "porttown",
+    "london_fog",
+    "london_street"
   ],
   "frame": [
     "cave",
