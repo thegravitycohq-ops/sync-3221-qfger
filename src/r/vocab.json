@@ -69,7 +69,9 @@
     "porttown",
     "london_fog",
     "london_street",
-    "gallows"
+    "gallows",
+    "farmland",
+    "windmill"
   ],
   "frame": [
     "cave",
