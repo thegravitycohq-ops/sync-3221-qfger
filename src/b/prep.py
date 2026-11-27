@@ -14,12 +14,12 @@ VOCAB = json.load(open(os.path.join(HERE, "..", "r", "vocab.json")))
 ABBR = ["Mr.", "Mrs.", "Ms.", "Dr.", "vs.", "etc.", "e.g.", "i.e.", "approx."]
 CAMS = ["in", "out", "left", "right", "in", "up"]
 T0, TAIL, MAX_JOBS = 2.0, 5.0, 20
-# Silent chapter cards (2026-11-14): the last sentence of every chapter except the final one is
-# followed by CARD_SECS of extra silence; plan.json gains a "cards" list [{s, e, title}] covering
-# exactly that silence, and the renderer draws the NEXT chapter's title on screen during it.
-# The title never enters TTS. Both the shard audio (synth_range) and the plan timeline
-# (assemble) add the same CARD_SECS, so audio and plan stay in sync in sharded and single runs.
-CARD_SECS = 6.0
+# Chapter cards (revised 2026-11-27, Bruce — chapter pauses ABOLISHED, standing for
+# Dreamopia): narration runs CONTINUOUSLY. No silence is added anywhere for a card.
+# plan.json gains a "cards" list [{s, e, title, n}] whose windows sit at the START of
+# each content chapter, CARD_SHOW seconds long, and the renderer draws the chapter's
+# title as an overlay WHILE the narration continues over it. The title never enters TTS.
+CARD_SHOW = 7.2
 
 # ---------- text ----------
 def sentences(p):
@@ -111,14 +111,8 @@ def units(script, lexicon=None):
                 for k, sent in enumerate(ss):
                     out.append({"ci": ci, "si": si, "art": art, "text": sent, "tts": tts(sent), "pe": k == len(ss) - 1})
                     art = None
-    # chapter cards: the last sentence of every chapter but the final one carries "card",
-    # which lengthens the silence after it by CARD_SECS in both synth and plan (see CARD_SECS).
-    last_of = {}
-    for i, u in enumerate(out):
-        last_of[u["ci"]] = i
-    for ci in range(len(script["chapters"]) - 1):
-        if ci in last_of:
-            out[last_of[ci]]["card"] = True
+    # chapter cards no longer mark units: cards are pure plan overlays emitted by
+    # assemble() at chapter starts (see CARD_SHOW); the audio carries no card silence.
     return out
 
 
@@ -150,7 +144,7 @@ def synth_range(us, m, synth_fn=synth):
     for k, u in enumerate(us):
         a = trim(synth_fn(u["tts"], voice, speed))
         counts.append(len(a))
-        sil = (para if u["pe"] else gap) + (CARD_SECS if u.get("card") else 0.0)
+        sil = para if u["pe"] else gap
         parts += [a, np.zeros(int(sil * SR), "int16")]
         if (k + 1) % 50 == 0:
             print(f"sentences {k + 1}/{len(us)}", flush=True)
@@ -329,16 +323,24 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
     fps, res = int(m.get("fps", 15)), int(m.get("res", 720))
     t, worlds, subs, chapters, warns, last_ci, lastgap = T0, [], [], [], [], -1, 0.0
     cards = []
-    # Branded intro (Bruce, 2026-11-15): a first chapter titled "Introduction" is the
-    # welcome; plan.intro covers its spoken span so the renderer can play the channel
-    # name/tagline animation over it, and chapter cards then number the CONTENT
-    # chapters from 1 (the intro itself is unnumbered).
-    intro = bool(script["chapters"]) and script["chapters"][0]["title"].strip().lower() == "introduction"
-    intro_e = None
+    # Branded intro (Bruce, 2026-11-15; generalised 2026-11-27 for the ASMR-format
+    # trial): the chapter titled "Introduction" — wherever it sits (the trial places
+    # it SECOND, after a topic cold open) — is the host introduction; plan.intro covers
+    # its spoken span so the renderer plays the channel name/tagline animation WHILE
+    # the host is speaking (captions suppressed during the window, as before).
+    # Chapter cards then number the CONTENT chapters from 1: content chapters are all
+    # chapters except chapter 0 and the Introduction chapter itself.
+    intro_idx = next((i for i, c in enumerate(script["chapters"])
+                      if c["title"].strip().lower() == "introduction"), None)
+    intro_s, intro_e = None, None
+    ch_start = {}
     for i, u in enumerate(us):
         if u["ci"] != last_ci:
             chapters.append((script["chapters"][u["ci"]]["title"], 0 if u["ci"] == 0 else t))
+            ch_start[u["ci"]] = t
             last_ci = u["ci"]
+        if intro_idx is not None and u["ci"] == intro_idx and intro_s is None:
+            intro_s = t
         if u["art"] is not None:
             cut = t - lastgap / 2 if worlds else 0  # change setting in the middle of the pause, not as the voice resumes
             if worlds:
@@ -355,13 +357,20 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
         for c in chunks:
             subs.append({"s": round(x, 3), "e": round(x + d * len(c) / tot, 3), "t": c})
             x += d * len(c) / tot
-        lastgap = int(((para if u["pe"] else gap) + (CARD_SECS if u.get("card") else 0.0)) * SR) / SR
-        if u.get("card"):
-            cards.append({"s": round(t + d, 3), "e": round(t + d + lastgap, 3), "title": script["chapters"][u["ci"] + 1]["title"],
-                          "n": u["ci"] + 2 - (1 if intro else 0)})
-            if intro and u["ci"] == 0:
-                intro_e = round(t + d, 3)
+        lastgap = int((para if u["pe"] else gap) * SR) / SR
+        if intro_idx is not None and u["ci"] == intro_idx:
+            intro_e = round(t + d, 3)
         t += d + lastgap
+    # Overlay chapter cards (2026-11-27): one per content chapter, opening at the
+    # chapter's first sentence and showing for CARD_SHOW seconds while the narration
+    # continues underneath. No card for chapter 0 (the opening) and none for the
+    # Introduction chapter (the branded slide plays there instead).
+    for j in range(1, len(script["chapters"])):
+        if j == intro_idx or j not in ch_start:
+            continue
+        n = j - intro_idx if intro_idx is not None else j + 1
+        cards.append({"s": round(ch_start[j], 3), "e": round(ch_start[j] + CARD_SHOW, 3),
+                      "title": script["chapters"][j]["title"], "n": n})
     total = round(t + TAIL, 3)
     worlds[-1]["e"] = total
     for i, w in enumerate(worlds):
@@ -377,7 +386,7 @@ def assemble(script, us, counts, out, brand=None, ffmpeg=True, audio=None):
             "brand": brand, "fade": float(m.get("fade", 0.6)), "scenes": shots, "subs": subs, "cards": cards,
             "tagline": str(m.get("tagline", ""))}
     if intro_e is not None:
-        plan["intro"] = {"s": 0, "e": intro_e}
+        plan["intro"] = {"s": round(intro_s, 3), "e": intro_e}
     meta = yt_meta(m, chapters, total)
     json.dump(plan, open(os.path.join(out, "plan.json"), "w"))
     json.dump(thumb_spec(m, worlds, total), open(os.path.join(out, "thumb.json"), "w"))

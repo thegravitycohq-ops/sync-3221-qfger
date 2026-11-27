@@ -71,7 +71,10 @@
     "london_street",
     "gallows",
     "farmland",
-    "windmill"
+    "windmill",
+    "aurora",
+    "tundra",
+    "yurt"
   ],
   "frame": [
     "cave",
